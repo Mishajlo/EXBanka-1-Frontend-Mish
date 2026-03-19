@@ -21,7 +21,7 @@ const STATUS_LABELS: Record<string, string> = {
 const ACCOUNT_KIND_LABELS: Record<string, string> = {
   CHECKING: 'Tekući',
   SAVINGS: 'Štedni',
-  FOREIGN_CURRENCY: 'Devizni',
+  FOREIGN: 'Devizni',
   BUSINESS: 'Poslovni',
 }
 

@@ -26,7 +26,7 @@ interface CreateAccountFormProps {
 const ACCOUNT_KIND_OPTIONS = [
   { value: 'CHECKING', label: 'Tekući (Checking)' },
   { value: 'SAVINGS', label: 'Štedni (Savings)' },
-  { value: 'FOREIGN_CURRENCY', label: 'Devizni (Foreign Currency)' },
+  { value: 'FOREIGN', label: 'Devizni (Foreign Currency)' },
   { value: 'BUSINESS', label: 'Poslovni (Business)' },
 ] as const
 
@@ -85,9 +85,9 @@ export function CreateAccountForm({ onSuccess }: CreateAccountFormProps) {
             onValueChange={(v) => {
               setValue(
                 'account_kind',
-                (v ?? 'CHECKING') as 'CHECKING' | 'SAVINGS' | 'FOREIGN_CURRENCY' | 'BUSINESS'
+                (v ?? 'CHECKING') as 'CHECKING' | 'SAVINGS' | 'FOREIGN' | 'BUSINESS'
               )
-              if (v !== 'FOREIGN_CURRENCY') setValue('currency_code', 'RSD')
+              if (v !== 'FOREIGN') setValue('currency_code', 'RSD')
             }}
           >
             <SelectTrigger id="account_kind">
@@ -143,7 +143,7 @@ export function CreateAccountForm({ onSuccess }: CreateAccountFormProps) {
         </Select>
       </div>
 
-      {accountKind === 'FOREIGN_CURRENCY' && (
+      {accountKind === 'FOREIGN' && (
         <div>
           <Label htmlFor="currency_code">Currency</Label>
           <Select
