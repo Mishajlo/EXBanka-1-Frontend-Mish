@@ -1,6 +1,6 @@
 # EXBanka Frontend — Project Specification
 
-_Last updated: 2026-04-29 (Celina 4 phases 1-4 complete: + OTC option contracts §29; portfolio tabs + profit chart; account activity embedded; sidebar icons + exact-match active state; notifications overflow fix)_
+_Last updated: 2026-05-07 (added runtime backend host selector: dropdown on login + Sidebar switcher with five presets — localhost, project-exbanka.bytenity.com/instance{1,2,3}, custom URL — persisted in localStorage)_
 
 ---
 
@@ -104,7 +104,10 @@ src/
 │   │   ├── PasswordResetForm.tsx     # Token + new password form
 │   │   ├── PasswordResetForm.test.tsx
 │   │   ├── ActivationForm.tsx        # Token + initial password form
-│   │   └── ActivationForm.test.tsx
+│   │   ├── ActivationForm.test.tsx
+│   │   ├── BackendSelector.tsx       # Dropdown to choose backend host (5 presets + custom URL)
+│   │   ├── BackendSelector.test.tsx
+│   │   └── BackendSwitcherButton.tsx # Sidebar dialog launcher for in-app backend switch
 │   ├── employees/
 │   │   ├── EmployeeForm.tsx          # Thin wrapper: delegates to Create or Edit form
 │   │   ├── EmployeeForm.test.tsx
@@ -325,7 +328,8 @@ src/
 │
 ├── lib/
 │   ├── api/
-│   │   ├── axios.ts                  # Axios instance + interceptors (token refresh)
+│   │   ├── axios.ts                  # Axios instance + interceptors (token refresh, runtime baseURL)
+│   │   ├── backendHost.ts + .test.ts # Runtime-configurable backend host (5 presets + custom URL, persisted in localStorage)
 │   │   ├── auth.ts + .test.ts        # Auth API calls
 │   │   ├── employees.ts + .test.ts   # Employee CRUD API calls
 │   │   ├── accounts.ts               # Account API calls
@@ -472,7 +476,7 @@ src/
 ## 5. Pages
 
 ### LoginPage
-- Renders `LoginForm`. Background GIF is provided by `AuthLayout`.
+- Renders `BackendSelector` (dropdown to choose which backend the frontend talks to) above `LoginForm`. Background GIF is provided by `AuthLayout`.
 - Handles unified login for both employees and clients via a single `/login` route.
 - After successful login, reads `userType` from Redux state (derived from JWT `system_type` field): redirects employees to `/admin/accounts`, clients to `/home`.
 
@@ -672,6 +676,15 @@ src/
 - Validation: `activationSchema`
 - On submit: calls `activateAccount({token, password, confirm_password})`
 - On success: confirmation message
+
+**BackendSelector** (`components/auth/BackendSelector.tsx`)
+- Dropdown to choose the API host the frontend talks to. Five presets: `localhost` (`http://localhost:8080`), `instance1` / `instance2` / `instance3` (`https://project-exbanka.bytenity.com/instanceN`), and `custom` (user-entered URL).
+- Persists selection in `localStorage` under `exbanka.backendPreset` / `exbanka.backendCustomUrl`. Selecting a preset persists immediately; the custom URL requires hitting **Apply** and is validated as `http(s)://...`.
+- Optional `onHostChange(host)` callback fires after a successful save.
+- Backed by `lib/api/backendHost.ts` (presets, getters, `setSelection`, `subscribeToHostChange`); `lib/api/axios.ts` reads the host on every request, so a switch takes effect without a rebuild.
+
+**BackendSwitcherButton** (`components/auth/BackendSwitcherButton.tsx`)
+- Sidebar entry that opens a dialog containing `BackendSelector` for in-app switching. The Sidebar wires `onHostChange` to clear tokens (`sessionStorage`), `queryClient.clear()`, dispatch `clearAuth()`, and navigate to `/login` — since a new backend issues different tokens, the existing session is no longer valid.
 
 ---
 
@@ -983,9 +996,16 @@ Errors are surfaced to the user through one canonical pipeline. **No silent fail
 
 ### Axios Client (`lib/api/axios.ts`)
 
-- Base URL: `http://localhost:8080`
-- **Request interceptor:** attaches `Authorization: Bearer <access_token>` from `sessionStorage`
-- **Response interceptor:** on 401, attempts token refresh via `/api/auth/refresh`, retries original request. If refresh fails, clears session and redirects to `/login`.
+- Base URL: resolved at request time as `${getCurrentHost()}/api/${API_VERSION}` — see `lib/api/backendHost.ts`. The host is user-selectable from the login screen (and the sidebar) and persisted in `localStorage`; falls back to the build-time `VITE_API_HOST` (default `http://localhost:8080`).
+- **Request interceptor:** sets `config.baseURL` from `getApiBaseUrl()` and attaches `Authorization: Bearer <access_token>` from `sessionStorage`
+- **Response interceptor:** on 401, attempts token refresh via `/auth/refresh` against the current resolved host, retries original request. If refresh fails, clears session and redirects to `/login`.
+
+### Backend Host (`lib/api/backendHost.ts`)
+
+- `BACKEND_PRESETS`: localhost · instance1 · instance2 · instance3 · custom (`https://project-exbanka.bytenity.com/instance{1,2,3}` for the bytenity entries).
+- `getCurrentHost()` / `getCurrentSelection()` read from `localStorage` (keys `exbanka.backendPreset`, `exbanka.backendCustomUrl`); fall back to the env default when nothing is stored.
+- `setSelection({ presetId, customUrl? })` persists and validates (custom URL must be `http(s)://...`), then notifies subscribers.
+- `subscribeToHostChange(listener)` for components / clients that need to react to a switch.
 
 ### Auth API (`lib/api/auth.ts`)
 

@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import {
   Moon,
   Sun,
@@ -36,7 +36,9 @@ import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAppDispatch } from '@/hooks/useAppDispatch'
 import { useAppSelector } from '@/hooks/useAppSelector'
-import { logoutThunk } from '@/store/slices/authSlice'
+import { clearAuth, logoutThunk } from '@/store/slices/authSlice'
+import { useQueryClient } from '@tanstack/react-query'
+import { BackendSwitcherButton } from '@/components/auth/BackendSwitcherButton'
 import {
   selectCurrentUser,
   selectHasPermission,
@@ -274,6 +276,8 @@ function EmployeeNav({
 
 export function Sidebar() {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const user = useAppSelector(selectCurrentUser)
   const { isDark, toggleTheme } = useTheme()
 
@@ -294,6 +298,18 @@ export function Sidebar() {
     dispatch(logoutThunk())
   }
 
+  const handleBackendChange = () => {
+    // The new backend issues different tokens, so the current session is no
+    // longer valid. Clear local auth + cached server data and send the user
+    // to /login. We skip logoutThunk since it would call the old refresh
+    // token against the new backend.
+    sessionStorage.removeItem('access_token')
+    sessionStorage.removeItem('refresh_token')
+    queryClient.clear()
+    dispatch(clearAuth())
+    navigate('/login')
+  }
+
   return (
     <aside className="relative w-64 bg-sidebar text-sidebar-foreground flex flex-col p-4 h-full">
       <div className="text-lg font-bold mb-6 text-accent-2">EXBanka</div>
@@ -310,8 +326,8 @@ export function Sidebar() {
           />
         )}
       </nav>
-      <div className="border-t border-sidebar-border pt-4 mt-4">
-        <div className="flex justify-between items-center mb-2">
+      <div className="border-t border-sidebar-border pt-4 mt-4 space-y-2">
+        <div className="flex justify-between items-center">
           <p className="text-sm text-sidebar-foreground/70 truncate">{user?.email}</p>
           <Button
             variant="ghost"
@@ -323,6 +339,7 @@ export function Sidebar() {
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
         </div>
+        <BackendSwitcherButton onHostChange={handleBackendChange} />
         <Button
           variant="outline"
           size="sm"
