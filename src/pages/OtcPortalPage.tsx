@@ -31,7 +31,7 @@ export function OtcPortalPage() {
   const { data: clientAccountsData } = useClientAccounts()
   const clientAccounts = clientAccountsData?.accounts ?? []
 
-  const { data: clientsData } = useAllClients()
+  const { data: clientsData } = useAllClients(undefined, { enabled: isEmployee })
   const clients = clientsData?.clients ?? []
   const { data: accountsForClientData } = useAccountsByClient(selectedClientId ?? 0)
   const accountsForClient = accountsForClientData?.accounts ?? []
