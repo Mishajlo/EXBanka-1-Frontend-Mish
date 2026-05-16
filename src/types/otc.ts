@@ -1,3 +1,5 @@
+export type OtcStockDirection = 'sell' | 'buy'
+
 export interface OtcLocalOffer {
   kind: 'local'
   bank_code: string
@@ -10,6 +12,8 @@ export interface OtcLocalOffer {
   quantity: number
   price_per_unit: string
   created_at: string
+  /** Phase 8: /otc/stocks may carry sell- or buy-direction listings. */
+  direction?: OtcStockDirection
 }
 
 export interface OtcRemoteOffer {
@@ -21,6 +25,7 @@ export interface OtcRemoteOffer {
   quantity: number
   price_per_unit: string
   currency: string
+  direction?: OtcStockDirection
 }
 
 export type OtcOffer = OtcLocalOffer | OtcRemoteOffer
