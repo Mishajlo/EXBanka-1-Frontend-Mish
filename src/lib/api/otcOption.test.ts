@@ -65,6 +65,22 @@ describe('getMyOtcOptionOffers', () => {
     await getMyOtcOptionOffers({ role: 'initiator' })
     expect(mockGet).toHaveBeenCalledWith('/me/otc/options', { params: { role: 'initiator' } })
   })
+
+  it('also maps `amount` → `quantity` so the table renders identically to the All tab', async () => {
+    mockGet.mockResolvedValue({
+      data: { offers: [{ id: 7, ticker: 'AAPL', amount: 25 }], total: 1 },
+    })
+    const result = await getMyOtcOptionOffers()
+    expect(result.offers[0]).toMatchObject({ quantity: '25' })
+  })
+
+  it('preserves ticker when present in the response', async () => {
+    mockGet.mockResolvedValue({
+      data: { offers: [{ id: 7, ticker: 'TSLA', quantity: '5', stock_id: 99 }], total: 1 },
+    })
+    const result = await getMyOtcOptionOffers()
+    expect(result.offers[0]?.ticker).toBe('TSLA')
+  })
 })
 
 describe('getAllOtcOptionOffers', () => {
@@ -102,6 +118,36 @@ describe('getAllOtcOptionOffers', () => {
     })
     const result = await getAllOtcOptionOffers()
     expect(result.offers[0]?.status).toBe('consumed')
+  })
+
+  it('maps `amount` (number) to `quantity` (string) for the All-tab shape', async () => {
+    // /otc/options returns numeric `amount`; OtcOffer / the table expect
+    // string `quantity`. Normalize to keep one table component rendering
+    // both endpoints consistently.
+    mockGet.mockResolvedValue({
+      data: {
+        offers: [{ offer_id: '42', ticker: 'AAPL', amount: 50 }],
+        total_count: 1,
+      },
+    })
+    const result = await getAllOtcOptionOffers()
+    expect(result.offers[0]).toMatchObject({ quantity: '50' })
+  })
+
+  it('maps `offer_id` (string) to numeric `id` for the All-tab shape', async () => {
+    mockGet.mockResolvedValue({
+      data: { offers: [{ offer_id: '42', ticker: 'AAPL', amount: 50 }], total_count: 1 },
+    })
+    const result = await getAllOtcOptionOffers()
+    expect(result.offers[0]?.id).toBe(42)
+  })
+
+  it('preserves `quantity` when it is already a string (Me-shape passthrough)', async () => {
+    mockGet.mockResolvedValue({
+      data: { offers: [{ id: 1, ticker: 'AAPL', quantity: '10' }], total_count: 1 },
+    })
+    const result = await getAllOtcOptionOffers()
+    expect(result.offers[0]?.quantity).toBe('10')
   })
 })
 

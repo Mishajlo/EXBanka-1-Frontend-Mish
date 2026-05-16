@@ -34,13 +34,37 @@ export async function getOtcOptionOffer(id: number): Promise<OtcOfferDetailRespo
   return data
 }
 
+/**
+ * The two listing endpoints disagree on field names:
+ *
+ *   /me/otc/options    → { id, status, stock_id, quantity, ... }
+ *   /otc/options       → { offer_id, ticker, amount, ... }  (no status)
+ *
+ * The UI renders both through one `OtcOptionOffersTable`, so we normalize
+ * both responses into the same `OtcOffer` shape: numeric `id`, string
+ * `quantity`, default `status: 'open'` when absent. Each raw row is passed
+ * through unchanged otherwise.
+ */
+function normalizeOtcOffer(raw: Record<string, unknown>): import('@/types/otcOption').OtcOffer {
+  const idFromOfferId =
+    raw.offer_id != null ? Number(raw.offer_id as string | number) : undefined
+  const id = (raw.id as number | undefined) ?? idFromOfferId ?? 0
+  const quantity =
+    raw.quantity != null ? String(raw.quantity) : raw.amount != null ? String(raw.amount) : ''
+  const status = (raw.status as import('@/types/otcOption').OtcOfferStatus | undefined) ?? 'open'
+  return { ...(raw as object), id, quantity, status } as import('@/types/otcOption').OtcOffer
+}
+
 export async function getMyOtcOptionOffers(
   filters: MyOffersFilters = {}
 ): Promise<MyOtcOffersResponse> {
   const { data } = await apiClient.get<MyOtcOffersResponse>('/me/otc/options', {
     params: filters,
   })
-  return { ...data, offers: data.offers ?? [] }
+  const offers = (data.offers ?? []).map((o) =>
+    normalizeOtcOffer(o as unknown as Record<string, unknown>)
+  )
+  return { ...data, offers }
 }
 
 export async function getAllOtcOptionOffers(
@@ -49,9 +73,9 @@ export async function getAllOtcOptionOffers(
   const { data } = await apiClient.get<MyOtcOffersResponse>('/otc/options', {
     params: filters,
   })
-  // /otc/options is an open-only discovery view — entries omit `status`.
-  // Default it so the UI doesn't render a blank status cell.
-  const offers = (data.offers ?? []).map((o) => ({ ...o, status: o.status ?? 'open' }))
+  const offers = (data.offers ?? []).map((o) =>
+    normalizeOtcOffer(o as unknown as Record<string, unknown>)
+  )
   return { ...data, offers }
 }
 
