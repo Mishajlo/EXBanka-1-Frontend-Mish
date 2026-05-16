@@ -50,13 +50,13 @@ export function OtcOptionOffersTable({ offers }: Props) {
                 <DirectionBadge direction={o.direction === 'sell_initiated' ? 'sell' : 'buy'} />
               </Link>
             </TableCell>
-            <TableCell>#{o.stock_id}</TableCell>
+            <TableCell className="font-medium">{o.ticker ?? `#${o.stock_id}`}</TableCell>
             <TableCell className="text-right">{o.quantity}</TableCell>
             <TableCell className="text-right">{o.strike_price}</TableCell>
             <TableCell className="text-right">{o.premium ?? '—'}</TableCell>
             <TableCell>{o.settlement_date}</TableCell>
             <TableCell>
-              <OtcOptionStatusBadge status={o.status} />
+              <OtcOptionStatusBadge status={o.status ?? 'open'} />
             </TableCell>
           </TableRow>
         ))}

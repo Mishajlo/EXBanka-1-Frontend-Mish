@@ -49,7 +49,10 @@ export async function getAllOtcOptionOffers(
   const { data } = await apiClient.get<MyOtcOffersResponse>('/otc/options', {
     params: filters,
   })
-  return { ...data, offers: data.offers ?? [] }
+  // /otc/options is an open-only discovery view — entries omit `status`.
+  // Default it so the UI doesn't render a blank status cell.
+  const offers = (data.offers ?? []).map((o) => ({ ...o, status: o.status ?? 'open' }))
+  return { ...data, offers }
 }
 
 // -- Negotiation chains ------------------------------------------------------

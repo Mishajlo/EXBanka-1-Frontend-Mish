@@ -35,6 +35,12 @@ export interface OtcOffer {
   direction: OtcOfferDirection
   status: OtcOfferStatus
   stock_id: number
+  /**
+   * Stock ticker symbol — present on /otc/options entries, may be absent
+   * on legacy /me/otc/options rows. UI should fall back to stock_id when
+   * undefined.
+   */
+  ticker?: string
   quantity: string
   strike_price: string
   premium: string | null

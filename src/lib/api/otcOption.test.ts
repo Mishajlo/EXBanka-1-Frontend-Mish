@@ -81,6 +81,28 @@ describe('getAllOtcOptionOffers', () => {
       params: { ticker: 'AAPL', kind: 'local', page: 2 },
     })
   })
+
+  it('defaults missing status to "open" so the status column renders', async () => {
+    // /otc/options entries omit the status field — the view is implicitly
+    // open-only. Surface a sensible default so the UI doesn't show a blank
+    // status cell.
+    mockGet.mockResolvedValue({
+      data: {
+        offers: [{ id: 1, ticker: 'AAPL', quantity: '10' }],
+        total_count: 1,
+      },
+    })
+    const result = await getAllOtcOptionOffers()
+    expect(result.offers[0]).toMatchObject({ ticker: 'AAPL', status: 'open' })
+  })
+
+  it('passes through existing status when present', async () => {
+    mockGet.mockResolvedValue({
+      data: { offers: [{ id: 2, status: 'consumed', ticker: 'TSLA' }], total_count: 1 },
+    })
+    const result = await getAllOtcOptionOffers()
+    expect(result.offers[0]?.status).toBe('consumed')
+  })
 })
 
 // -- Negotiation chains -----------------------------------------------------
