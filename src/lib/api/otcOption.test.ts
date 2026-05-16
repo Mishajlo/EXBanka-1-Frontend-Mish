@@ -108,6 +108,20 @@ describe('getMyOtcOptionOffers', () => {
     const result = await getMyOtcOptionOffers()
     expect(result.offers[0]?.ticker).toBe('TSLA')
   })
+
+  it('deduplicates duplicate rows by id', async () => {
+    mockGet.mockResolvedValue({
+      data: {
+        offers: [
+          { id: 7, ticker: 'TSLA' },
+          { id: 7, ticker: 'TSLA' },
+        ],
+        total: 2,
+      },
+    })
+    const result = await getMyOtcOptionOffers()
+    expect(result.offers).toHaveLength(1)
+  })
 })
 
 describe('getAllOtcOptionOffers', () => {
@@ -198,6 +212,22 @@ describe('getAllOtcOptionOffers', () => {
     const result = await getAllOtcOptionOffers()
     expect(result.offers[0]?.initiator).toBeDefined()
     expect(result.offers[0]?.initiator.owner_id).toBeNull()
+  })
+
+  it('deduplicates offers that share the same id (keeps the first occurrence)', async () => {
+    mockGet.mockResolvedValue({
+      data: {
+        offers: [
+          { id: 7, ticker: 'AAPL', quantity: '10' },
+          { id: 7, ticker: 'AAPL', quantity: '10' },
+          { id: 8, ticker: 'TSLA', quantity: '5' },
+        ],
+        total_count: 3,
+      },
+    })
+    const result = await getAllOtcOptionOffers()
+    expect(result.offers).toHaveLength(2)
+    expect(result.offers.map((o) => o.id)).toEqual([7, 8])
   })
 })
 

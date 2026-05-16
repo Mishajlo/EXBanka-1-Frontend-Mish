@@ -102,14 +102,33 @@ function normalizeOtcOffer(raw: Record<string, unknown>): import('@/types/otcOpt
   } as import('@/types/otcOption').OtcOffer
 }
 
+/**
+ * Drop offers whose id has already been seen so the table never renders
+ * the same offer twice. Backends occasionally return the same row twice
+ * (overlap between local + peer caches, retransmits, etc); the UI should
+ * surface one row per id regardless.
+ */
+function dedupeOffersById(
+  offers: import('@/types/otcOption').OtcOffer[]
+): import('@/types/otcOption').OtcOffer[] {
+  const seen = new Set<number>()
+  const out: import('@/types/otcOption').OtcOffer[] = []
+  for (const o of offers) {
+    if (seen.has(o.id)) continue
+    seen.add(o.id)
+    out.push(o)
+  }
+  return out
+}
+
 export async function getMyOtcOptionOffers(
   filters: MyOffersFilters = {}
 ): Promise<MyOtcOffersResponse> {
   const { data } = await apiClient.get<MyOtcOffersResponse>('/me/otc/options', {
     params: filters,
   })
-  const offers = (data.offers ?? []).map((o) =>
-    normalizeOtcOffer(o as unknown as Record<string, unknown>)
+  const offers = dedupeOffersById(
+    (data.offers ?? []).map((o) => normalizeOtcOffer(o as unknown as Record<string, unknown>))
   )
   return { ...data, offers }
 }
@@ -120,8 +139,8 @@ export async function getAllOtcOptionOffers(
   const { data } = await apiClient.get<MyOtcOffersResponse>('/otc/options', {
     params: filters,
   })
-  const offers = (data.offers ?? []).map((o) =>
-    normalizeOtcOffer(o as unknown as Record<string, unknown>)
+  const offers = dedupeOffersById(
+    (data.offers ?? []).map((o) => normalizeOtcOffer(o as unknown as Record<string, unknown>))
   )
   return { ...data, offers }
 }
