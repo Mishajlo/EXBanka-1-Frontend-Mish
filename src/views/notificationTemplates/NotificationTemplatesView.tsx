@@ -6,6 +6,7 @@ import { TemplateEditorPanel } from '@/views/notificationTemplates/components/Te
 import { TemplatesTable } from '@/views/notificationTemplates/components/TemplatesTable'
 import { useNotificationTemplates } from '@/views/notificationTemplates/hooks/useNotificationTemplatesLists'
 import type { ChannelFilter, NotificationTemplate } from '@/views/notificationTemplates/types'
+import { ViewShell, LoadingState, ErrorState, panelEnter } from '@/views/shared'
 
 export function NotificationTemplatesView() {
   const [channel, setChannel] = useState<ChannelFilter>('all')
@@ -41,22 +42,22 @@ export function NotificationTemplatesView() {
 
   if (liveEditing) {
     return (
-      <div className="p-6">
+      <ViewShell className={panelEnter}>
         <TemplateEditorPanel template={liveEditing} onBack={() => setEditing(null)} />
-      </div>
+      </ViewShell>
     )
   }
 
   return (
-    <div className="p-6 space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Notification Templates</h1>
-        <p className="text-sm text-muted-foreground">
+    <ViewShell
+      title="Notification Templates"
+      subtitle={
+        <>
           Customise the subject and body text sent to clients. Each template type accepts a fixed
           set of <code className="text-[11px]">{`{{variables}}`}</code>.
-        </p>
-      </div>
-
+        </>
+      }
+    >
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 flex-wrap">
           <CardTitle className="text-base">Templates</CardTitle>
@@ -77,13 +78,13 @@ export function NotificationTemplatesView() {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
-          {error && <p className="text-sm text-destructive">Could not load templates.</p>}
+          {isLoading && <LoadingState />}
+          {error && <ErrorState message="Could not load templates." />}
           {!isLoading && !error && (
             <TemplatesTable templates={filtered} onEdit={(t) => setEditing(t)} />
           )}
         </CardContent>
       </Card>
-    </div>
+    </ViewShell>
   )
 }

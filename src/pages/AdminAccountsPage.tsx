@@ -9,6 +9,7 @@ import { PaginationControls } from '@/components/shared/PaginationControls'
 import { filterAccountsByOwner } from '@/lib/utils/accountFilters'
 import type { Client } from '@/types/client'
 import type { FilterFieldDef, FilterValues } from '@/types/filters'
+import { LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -54,18 +55,18 @@ export function AdminAccountsPage() {
   )
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Account Management</h1>
-        <Button onClick={() => navigate('/accounts/new')}>New Account</Button>
-      </div>
+    <ViewShell
+      title="Account Management"
+      subtitle="Every account at EXBanka — open new ones, drill into cards or activity."
+      actions={<Button onClick={() => navigate('/accounts/new')}>New Account</Button>}
+    >
       <FilterBar
         fields={ACCOUNT_FILTER_FIELDS}
         values={filterValues}
         onChange={handleFilterChange}
       />
       {isLoading ? (
-        <p>Loading...</p>
+        <LoadingState />
       ) : (
         <AccountTable
           accounts={accounts}
@@ -82,6 +83,6 @@ export function AdminAccountsPage() {
         />
       )}
       <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
-    </div>
+    </ViewShell>
   )
 }

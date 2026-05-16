@@ -10,8 +10,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PaginationControls } from '@/components/shared/PaginationControls'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { useAccountActivity } from '@/hooks/useAccounts'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 20
 
@@ -25,16 +25,18 @@ export function AccountActivityPage() {
   const totalPages = Math.max(1, Math.ceil((data?.total_count ?? 0) / PAGE_SIZE))
 
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" onClick={() => navigate('/accounts')}>
-          Back
-        </Button>
-        <h1 className="text-2xl font-bold">Account Activity</h1>
-      </div>
-
+    <ViewShell
+      title={
+        <span className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/accounts')}>
+            ← Back
+          </Button>
+          Account Activity
+        </span>
+      }
+    >
       {isLoading ? (
-        <LoadingSpinner />
+        <LoadingState />
       ) : data?.entries.length ? (
         <>
           <Table>
@@ -77,8 +79,8 @@ export function AccountActivityPage() {
           <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
         </>
       ) : (
-        <p>No activity found for this account.</p>
+        <EmptyState title="No activity found for this account." />
       )}
-    </div>
+    </ViewShell>
   )
 }

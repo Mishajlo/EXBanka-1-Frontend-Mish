@@ -16,6 +16,7 @@ import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { LOAN_TYPES } from '@/lib/constants/banking'
 import type { LoanFilters as LoanFiltersType, LoanType, LoanStatus } from '@/types/loan'
 import type { FilterFieldDef, FilterValues } from '@/types/filters'
+import { LoadingState, ViewShell, hoverLift, rowEnter } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -75,13 +76,11 @@ export function AdminLoansPage() {
   const loanTypeLabel = (type: string) => LOAN_TYPES.find((t) => t.value === type)?.label ?? type
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">All Loans</h1>
-
+    <ViewShell title="All Loans" subtitle="Every active and closed loan across all clients.">
       <FilterBar fields={LOAN_FILTER_FIELDS} values={filterValues} onChange={handleFilterChange} />
 
       {isLoading ? (
-        <p>Loading...</p>
+        <LoadingState />
       ) : (
         <Table>
           <TableHeader>
@@ -102,7 +101,7 @@ export function AdminLoansPage() {
             {loans.map((loan) => {
               const currency = loan.currency_code ?? 'RSD'
               return (
-                <TableRow key={loan.id}>
+                <TableRow key={loan.id} className={`${hoverLift} ${rowEnter}`}>
                   <TableCell className="font-mono text-sm">{loan.loan_number}</TableCell>
                   <TableCell>{loanTypeLabel(loan.loan_type)}</TableCell>
                   <TableCell>
@@ -140,6 +139,6 @@ export function AdminLoansPage() {
         </Table>
       )}
       <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
-    </div>
+    </ViewShell>
   )
 }

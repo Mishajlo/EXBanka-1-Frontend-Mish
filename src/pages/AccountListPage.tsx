@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import type { Payment } from '@/types/payment'
+import { EmptyState, ViewShell } from '@/views/shared'
 
 export function AccountListPage() {
   const navigate = useNavigate()
@@ -34,21 +35,22 @@ export function AccountListPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4" data-testid="accounts-skeleton">
-        <Skeleton className="h-8 w-48" />
-        <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
-          ))}
+      <ViewShell>
+        <div className="space-y-4" data-testid="accounts-skeleton">
+          <Skeleton className="h-8 w-48" />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-40 w-full rounded-xl" />
         </div>
-        <Skeleton className="h-40 w-full rounded-xl" />
-      </div>
+      </ViewShell>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">My Accounts</h1>
+    <ViewShell title="My Accounts" subtitle="Your bank accounts at EXBanka.">
       <div className="space-y-3">
         {accounts.map((account) => (
           <AccountCard
@@ -57,9 +59,7 @@ export function AccountListPage() {
             onClick={() => navigate(`/accounts/${account.id}`)}
           />
         ))}
-        {accounts.length === 0 && (
-          <p className="text-muted-foreground">You have no active accounts.</p>
-        )}
+        {accounts.length === 0 && <EmptyState title="You have no active accounts." />}
       </div>
 
       {effectiveAccount && (
@@ -93,6 +93,6 @@ export function AccountListPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </ViewShell>
   )
 }

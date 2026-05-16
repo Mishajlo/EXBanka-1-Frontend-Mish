@@ -7,7 +7,6 @@ import { PortfolioSummaryCard } from '@/components/portfolio/PortfolioSummaryCar
 import { PortfolioProfitChart } from '@/components/portfolio/PortfolioProfitChart'
 import { PortfolioHoldingsPieChart } from '@/components/portfolio/PortfolioHoldingsPieChart'
 import { PaginationControls } from '@/components/shared/PaginationControls'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { MyFundsList } from '@/components/funds/MyFundsList'
@@ -21,6 +20,7 @@ import { useMyFundPositions } from '@/hooks/useFunds'
 import { getStocks } from '@/lib/api/securities'
 import type { Holding, PortfolioFilters } from '@/types/portfolio'
 import type { FilterFieldDef, FilterValues } from '@/types/filters'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -116,9 +116,7 @@ export function PortfolioPage() {
   )
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Portfolio</h1>
-
+    <ViewShell title="Portfolio" subtitle="Your investment holdings and fund positions.">
       {summary && <PortfolioSummaryCard summary={summary} />}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 mb-4">
@@ -154,7 +152,7 @@ export function PortfolioPage() {
             onChange={handleFilterChange}
           />
           {isLoading ? (
-            <LoadingSpinner />
+            <LoadingState />
           ) : data?.holdings.length ? (
             <>
               <HoldingTable
@@ -168,7 +166,7 @@ export function PortfolioPage() {
               <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
             </>
           ) : (
-            <p>No holdings found.</p>
+            <EmptyState title="No holdings found." />
           )}
         </TabsContent>
         <TabsContent value="funds" className="mt-4">
@@ -191,6 +189,6 @@ export function PortfolioPage() {
           loading={makePublicMutation.isPending}
         />
       )}
-    </div>
+    </ViewShell>
   )
 }

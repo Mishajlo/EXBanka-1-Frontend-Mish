@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 type PendingAction = { type: 'block' | 'unblock' | 'deactivate'; cardId: number } | null
 
@@ -58,19 +59,19 @@ export function AdminAccountCardsPage() {
   const text = pending ? ACTION_TEXT[pending.type] : null
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate('/admin/accounts')}>
+    <ViewShell
+      title={
+        <span className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/admin/accounts')}>
             ← Back
           </Button>
-          <h1 className="text-2xl font-bold">Cards — {account?.account_name ?? 'Account'}</h1>
-        </div>
-        <Button onClick={() => setCreateCardOpen(true)}>Create Card</Button>
-      </div>
-
+          Cards — {account?.account_name ?? 'Account'}
+        </span>
+      }
+      actions={<Button onClick={() => setCreateCardOpen(true)}>Create Card</Button>}
+    >
       {isLoading ? (
-        <p>Loading...</p>
+        <LoadingState />
       ) : cards && cards.length > 0 ? (
         <div className="space-y-3">
           {cards.map((card) => (
@@ -84,7 +85,7 @@ export function AdminAccountCardsPage() {
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">No cards for this account.</p>
+        <EmptyState title="No cards for this account." />
       )}
 
       <Dialog open={pending !== null} onOpenChange={() => setPending(null)}>
@@ -105,6 +106,6 @@ export function AdminAccountCardsPage() {
       </Dialog>
 
       <CreateCardDialog open={createCardOpen} onClose={() => setCreateCardOpen(false)} />
-    </div>
+    </ViewShell>
   )
 }

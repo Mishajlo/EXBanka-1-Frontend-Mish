@@ -26,12 +26,7 @@ import {
   Building2,
   CheckSquare,
   Receipt,
-  Shield,
-  Gauge,
-  Percent,
-  Banknote,
-  Network,
-  Mail,
+  Settings,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -256,26 +251,9 @@ function EmployeeNav({
         </NavGroup>
       )}
       {isAdmin && (
-        <NavGroup label="Settings">
-          <NavItem to="/admin/roles" icon={Shield}>
-            Roles &amp; Permissions
-          </NavItem>
-          <NavItem to="/admin/limits/employees" icon={Gauge}>
-            Limits
-          </NavItem>
-          <NavItem to="/admin/interest-rates" icon={Percent}>
-            Interest Rates
-          </NavItem>
-          <NavItem to="/admin/fees" icon={Banknote}>
-            Transfer Fees
-          </NavItem>
-          <NavItem to="/admin/peer-banks" icon={Network}>
-            Peer Banks
-          </NavItem>
-          <NavItem to="/admin/notification-templates" icon={Mail}>
-            Notification Templates
-          </NavItem>
-        </NavGroup>
+        <NavItem to="/admin/settings" icon={Settings}>
+          Settings
+        </NavItem>
       )}
     </>
   )

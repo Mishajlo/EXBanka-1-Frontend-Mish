@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 import {
   useInterestRateTiers,
   useCreateTier,
@@ -9,7 +10,6 @@ import {
 import { useBankMargins, useUpdateBankMargin } from '@/hooks/useBankMargins'
 import type { InterestRateTier, CreateTierPayload } from '@/types/interestRateTiers'
 import type { BankMargin } from '@/types/bankMargins'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { InterestRateTiersTable } from '@/components/admin/InterestRateTiersTable'
 import { BankMarginsTable } from '@/components/admin/BankMarginsTable'
 import { CreateTierDialog } from '@/components/admin/CreateTierDialog'
@@ -77,13 +77,12 @@ export function AdminInterestRatesPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Interest Rates</h1>
-      </div>
-
+    <ViewShell
+      title="Interest Rates"
+      subtitle="Tiers that price variable-rate loans, plus the bank's margin per currency."
+    >
       {isLoading ? (
-        <LoadingSpinner />
+        <LoadingState />
       ) : (
         <Tabs defaultValue="tiers">
           <TabsList className="mb-4">
@@ -103,7 +102,7 @@ export function AdminInterestRatesPage() {
                 onApply={setApplyTier}
               />
             ) : (
-              <p>No interest rate tiers found.</p>
+              <EmptyState title="No interest rate tiers found." />
             )}
           </TabsContent>
 
@@ -111,7 +110,7 @@ export function AdminInterestRatesPage() {
             {margins.length ? (
               <BankMarginsTable margins={margins} onEdit={setEditMargin} />
             ) : (
-              <p>No bank margins found.</p>
+              <EmptyState title="No bank margins found." />
             )}
           </TabsContent>
         </Tabs>
@@ -212,6 +211,6 @@ export function AdminInterestRatesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </ViewShell>
   )
 }

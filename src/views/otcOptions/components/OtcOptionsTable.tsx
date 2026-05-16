@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table'
 import { isOwnRow } from '@/views/otcOptions/lib/ownership'
 import type { OtcOptionRow } from '@/views/otcOptions/types'
+import { hoverLift, rowEnter } from '@/views/shared'
 
 interface Props {
   rows: OtcOptionRow[]
@@ -71,7 +72,7 @@ export function OtcOptionsTable({
             <TableRow
               key={`${row.bank_code}-${row.offer_id}`}
               onClick={() => onRowOpen(row)}
-              className="cursor-pointer hover:bg-muted/40"
+              className={`${hoverLift} ${rowEnter}`}
             >
               <TableCell className="font-medium">{row.ticker}</TableCell>
               <TableCell className="text-xs text-muted-foreground">

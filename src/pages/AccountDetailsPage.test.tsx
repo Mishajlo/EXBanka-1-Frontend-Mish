@@ -44,7 +44,7 @@ describe('AccountDetailsPage', () => {
 
   it('renders account name', () => {
     renderWithProviders(<AccountDetailsPage />, { route: '/accounts/1' })
-    expect(screen.getByRole('heading', { name: 'Tekući RSD' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Tekući RSD/ })).toBeInTheDocument()
   })
 
   it('renders rename button', () => {

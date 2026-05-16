@@ -15,6 +15,7 @@ import { AccountActivityPanel } from '@/components/accounts/AccountActivityPanel
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils/format'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 export function AccountDetailsPage() {
   const { id } = useParams<{ id: string }>()
@@ -30,8 +31,20 @@ export function AccountDetailsPage() {
   const [renameOpen, setRenameOpen] = useState(false)
   const [limitsOpen, setLimitsOpen] = useState(false)
 
-  if (isLoading) return <p>Loading...</p>
-  if (!account) return <p>Account not found.</p>
+  if (isLoading) {
+    return (
+      <ViewShell>
+        <LoadingState />
+      </ViewShell>
+    )
+  }
+  if (!account) {
+    return (
+      <ViewShell title="Account">
+        <EmptyState title="Account not found." />
+      </ViewShell>
+    )
+  }
 
   const handleRename = (name: string) => {
     updateAccountName.mutate({ new_name: name }, { onSuccess: () => setRenameOpen(false) })
@@ -42,14 +55,16 @@ export function AccountDetailsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate('/accounts')}>
-          ← Back
-        </Button>
-        <h1 className="text-2xl font-bold">{account.account_name}</h1>
-      </div>
-
+    <ViewShell
+      title={
+        <span className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/accounts')}>
+            ← Back
+          </Button>
+          {account.account_name}
+        </span>
+      }
+    >
       <AccountCard account={account} />
 
       <Card>
@@ -129,7 +144,7 @@ export function AccountDetailsPage() {
         onSubmit={handleLimitsChange}
         loading={updateAccountLimits.isPending}
       />
-    </div>
+    </ViewShell>
   )
 }
 

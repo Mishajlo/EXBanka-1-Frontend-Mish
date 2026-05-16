@@ -16,6 +16,7 @@ import { LOAN_TYPES } from '@/lib/constants/banking'
 import { formatCurrency } from '@/lib/utils/format'
 import type { LoanType } from '@/types/loan'
 import type { FilterFieldDef, FilterValues } from '@/types/filters'
+import { LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -68,9 +69,7 @@ export function AdminLoanRequestsPage() {
   const isDisabled = approve.isPending || reject.isPending
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Loan Requests</h1>
-
+    <ViewShell title="Loan Requests" subtitle="Pending loan applications awaiting approval.">
       <FilterBar
         fields={LOAN_REQUEST_FILTER_FIELDS}
         values={filterValues}
@@ -78,7 +77,7 @@ export function AdminLoanRequestsPage() {
       />
 
       {isLoading ? (
-        <p>Loading...</p>
+        <LoadingState />
       ) : (
         <Table>
           <TableHeader>
@@ -142,6 +141,6 @@ export function AdminLoanRequestsPage() {
         </Table>
       )}
       <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
-    </div>
+    </ViewShell>
   )
 }

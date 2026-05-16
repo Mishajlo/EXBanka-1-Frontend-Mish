@@ -9,6 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { NotificationTemplate } from '@/views/notificationTemplates/types'
+import { hoverLift, rowEnter } from '@/views/shared'
 
 interface Props {
   templates: NotificationTemplate[]
@@ -36,7 +37,7 @@ export function TemplatesTable({ templates, onEdit }: Props) {
           <TableRow
             key={`${t.channel}:${t.type}`}
             onClick={() => onEdit(t)}
-            className="cursor-pointer hover:bg-muted/40"
+            className={`${hoverLift} ${rowEnter}`}
           >
             <TableCell className="font-medium">{t.type}</TableCell>
             <TableCell className="text-xs uppercase text-muted-foreground">{t.channel}</TableCell>

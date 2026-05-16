@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { useRoles, useCreateRole, useUpdateRolePermissions } from '@/hooks/useRoles'
 import { usePermissions } from '@/hooks/usePermissions'
 import type { Role, CreateRolePayload } from '@/types/roles'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { RolesTable } from '@/components/admin/RolesTable'
 import { PermissionsTable } from '@/components/admin/PermissionsTable'
 import { CreateRoleDialog } from '@/components/admin/CreateRoleDialog'
 import { EditRolePermissionsDialog } from '@/components/admin/EditRolePermissionsDialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 export function AdminRolesPage() {
   const { data: rolesData, isLoading: rolesLoading } = useRoles()
@@ -37,14 +37,13 @@ export function AdminRolesPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Roles &amp; Permissions</h1>
-        <Button onClick={() => setCreateOpen(true)}>Create Role</Button>
-      </div>
-
+    <ViewShell
+      title="Roles & Permissions"
+      subtitle="Define what each employee role is allowed to do."
+      actions={<Button onClick={() => setCreateOpen(true)}>Create Role</Button>}
+    >
       {isLoading ? (
-        <LoadingSpinner />
+        <LoadingState />
       ) : (
         <Tabs defaultValue="roles">
           <TabsList className="mb-4">
@@ -56,7 +55,7 @@ export function AdminRolesPage() {
             {roles.length ? (
               <RolesTable roles={roles} onEditPermissions={setEditRole} />
             ) : (
-              <p>No roles found.</p>
+              <EmptyState title="No roles found." />
             )}
           </TabsContent>
 
@@ -64,7 +63,7 @@ export function AdminRolesPage() {
             {permissions.length ? (
               <PermissionsTable permissions={permissions} />
             ) : (
-              <p>No permissions found.</p>
+              <EmptyState title="No permissions found." />
             )}
           </TabsContent>
         </Tabs>
@@ -86,6 +85,6 @@ export function AdminRolesPage() {
         onSave={handleSavePermissions}
         loading={updatePermissionsMutation.isPending}
       />
-    </div>
+    </ViewShell>
   )
 }

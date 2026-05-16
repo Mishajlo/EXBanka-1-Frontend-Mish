@@ -6,9 +6,10 @@ import { useClientAccounts } from '@/hooks/useAccounts'
 import { submitLoanRequest, resetLoanFlow } from '@/store/slices/loanSlice'
 import { selectCurrentUser } from '@/store/selectors/authSelectors'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { LoanApplicationForm } from '@/components/loans/LoanApplicationForm'
 import type { CreateLoanRequest } from '@/types/loan'
+import { ViewShell } from '@/views/shared'
 
 export function LoanApplicationPage() {
   const dispatch = useAppDispatch()
@@ -26,16 +27,15 @@ export function LoanApplicationPage() {
 
   if (step === 'success' && result) {
     return (
-      <div className="space-y-4 text-center">
-        <h2 className="text-xl font-semibold">Loan request submitted successfully!</h2>
+      <ViewShell title="Loan request submitted">
         <p className="text-muted-foreground">Your request is being processed.</p>
-        <div className="flex justify-center gap-3">
+        <div className="flex gap-3">
           <Button onClick={() => navigate('/loans')}>Back to Loans</Button>
           <Button variant="outline" onClick={() => dispatch(resetLoanFlow())}>
             New Request
           </Button>
         </div>
-      </div>
+      </ViewShell>
     )
   }
 
@@ -45,12 +45,12 @@ export function LoanApplicationPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle>Submit Loan Request</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <ViewShell
+      title="Submit Loan Request"
+      subtitle="Apply for a personal, cash, mortgage, or business loan."
+    >
+      <Card className="max-w-lg">
+        <CardContent className="pt-6">
           <LoanApplicationForm
             accounts={accounts}
             onSubmit={onSubmit}
@@ -59,6 +59,6 @@ export function LoanApplicationPage() {
           />
         </CardContent>
       </Card>
-    </div>
+    </ViewShell>
   )
 }

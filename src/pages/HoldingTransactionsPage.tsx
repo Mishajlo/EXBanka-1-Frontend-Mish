@@ -10,8 +10,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PaginationControls } from '@/components/shared/PaginationControls'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { useHoldingTransactions } from '@/hooks/usePortfolio'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -25,16 +25,18 @@ export function HoldingTransactionsPage() {
   const totalPages = Math.max(1, Math.ceil((data?.total_count ?? 0) / PAGE_SIZE))
 
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" onClick={() => navigate('/portfolio')}>
-          Back
-        </Button>
-        <h1 className="text-2xl font-bold">Holding Transactions</h1>
-      </div>
-
+    <ViewShell
+      title={
+        <span className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/portfolio')}>
+            ← Back
+          </Button>
+          Holding Transactions
+        </span>
+      }
+    >
       {isLoading ? (
-        <LoadingSpinner />
+        <LoadingState />
       ) : data?.transactions.length ? (
         <>
           <Table>
@@ -85,8 +87,8 @@ export function HoldingTransactionsPage() {
           <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
         </>
       ) : (
-        <p>No transactions found for this holding.</p>
+        <EmptyState title="No transactions found for this holding." />
       )}
-    </div>
+    </ViewShell>
   )
 }

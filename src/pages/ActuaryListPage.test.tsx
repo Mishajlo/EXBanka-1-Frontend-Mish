@@ -89,7 +89,7 @@ describe('ActuaryListPage', () => {
     renderWithProviders(<ActuaryListPage />, {
       preloadedState: { auth: supervisorAuth },
     })
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 
   it('shows "No actuaries found." when API returns empty array', async () => {

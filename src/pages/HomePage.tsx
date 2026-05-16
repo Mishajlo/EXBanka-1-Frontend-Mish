@@ -11,6 +11,7 @@ import { QuickPayment } from '@/components/home/QuickPayment'
 import { ExchangeCalculator } from '@/components/home/ExchangeCalculator'
 import { RecentTransactions } from '@/components/accounts/RecentTransactions'
 import { cn } from '@/lib/utils'
+import { ViewShell } from '@/views/shared'
 
 export function HomePage() {
   const navigate = useNavigate()
@@ -24,12 +25,7 @@ export function HomePage() {
   const recentTransactions = paymentsData?.payments ?? []
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Welcome, {user?.email}!</h1>
-        <p className="text-muted-foreground">Your Accounts Overview</p>
-      </div>
-
+    <ViewShell title={`Welcome, ${user?.email ?? ''}!`} subtitle="Your accounts overview.">
       <div className="grid grid-cols-2 gap-4">
         <Card>
           <CardHeader>
@@ -86,6 +82,6 @@ export function HomePage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </ViewShell>
   )
 }

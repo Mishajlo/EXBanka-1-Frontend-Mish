@@ -118,7 +118,7 @@ describe('EmployeeListPage', () => {
     renderWithProviders(<EmployeeListPage />, {
       preloadedState: { auth: createMockAuthState() },
     })
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 
   it('fetches with page and page_size on initial load', async () => {

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useConvertCurrency, useExchangeRates } from '@/hooks/useExchange'
 import { EquivalenceCalculator } from '@/components/exchange/EquivalenceCalculator'
 import type { ConversionResult, ConvertCurrencyRequest, ExchangeRate } from '@/types/exchange'
+import { ViewShell } from '@/views/shared'
 
 function computeLocalConversion(
   rates: ExchangeRate[],
@@ -56,12 +57,17 @@ export function ExchangeCalculatorPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto">
-      <EquivalenceCalculator
-        onConvert={handleConvert}
-        result={result}
-        loading={conversion.isPending}
-      />
-    </div>
+    <ViewShell
+      title="Currency Calculator"
+      subtitle="Convert between supported currencies at the live exchange rate."
+    >
+      <div className="max-w-lg">
+        <EquivalenceCalculator
+          onConvert={handleConvert}
+          result={result}
+          loading={conversion.isPending}
+        />
+      </div>
+    </ViewShell>
   )
 }

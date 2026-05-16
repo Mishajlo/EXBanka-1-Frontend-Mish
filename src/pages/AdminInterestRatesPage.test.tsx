@@ -61,7 +61,7 @@ describe('AdminInterestRatesPage', () => {
     jest.mocked(marginsApi.getBankMargins).mockReturnValue(new Promise(() => {}))
 
     renderWithProviders(<AdminInterestRatesPage />)
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 
   it('displays tiers table with data', async () => {

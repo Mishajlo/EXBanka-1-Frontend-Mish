@@ -5,10 +5,11 @@ import { useCreateClient } from '@/hooks/useClients'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { createClientSchema } from '@/lib/utils/validation'
 import { todayISO, dateToUnixTimestamp } from '@/lib/utils/dateFormatter'
 import type { z } from 'zod'
+import { ViewShell } from '@/views/shared'
 
 type FormValues = z.infer<typeof createClientSchema>
 
@@ -32,19 +33,18 @@ export function CreateClientPage() {
   }
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" onClick={() => navigate(-1)}>
-          ← Back
-        </Button>
-        <h1 className="text-2xl font-bold">New Client</h1>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Client Information</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <ViewShell
+      title={
+        <span className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+            ← Back
+          </Button>
+          New Client
+        </span>
+      }
+    >
+      <Card className="max-w-lg">
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -114,6 +114,6 @@ export function CreateClientPage() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </ViewShell>
   )
 }

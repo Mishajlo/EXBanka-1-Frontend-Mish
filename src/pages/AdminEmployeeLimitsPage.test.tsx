@@ -81,7 +81,7 @@ describe('AdminEmployeeLimitsPage', () => {
     renderWithProviders(<AdminEmployeeLimitsPage />, {
       preloadedState: { auth: adminAuth },
     })
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 
   it('shows Manage Templates button', async () => {

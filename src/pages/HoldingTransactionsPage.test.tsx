@@ -43,6 +43,6 @@ describe('HoldingTransactionsPage', () => {
   it('shows loading spinner while fetching', () => {
     jest.mocked(portfolioApi.getHoldingTransactions).mockReturnValue(new Promise(() => {}))
     renderWithProviders(<HoldingTransactionsPage />)
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 })

@@ -46,7 +46,7 @@ describe('PortfolioPage', () => {
   it('shows loading state', () => {
     jest.mocked(portfolioApi.getPortfolio).mockReturnValue(new Promise(() => {}))
     renderWithProviders(<PortfolioPage />)
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 
   it('shows empty state', async () => {

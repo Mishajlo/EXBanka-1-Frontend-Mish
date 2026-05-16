@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react'
+import { EmptyState, LoadingState, ViewShell, hoverLift, rowEnter } from '@/views/shared'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import { useAllClients } from '@/hooks/useClients'
 import { FilterBar } from '@/components/ui/FilterBar'
 import { PaginationControls } from '@/components/shared/PaginationControls'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EditClientLimitsDialog } from '@/components/admin/EditClientLimitsDialog'
 import {
   Table,
@@ -48,12 +48,13 @@ export function AdminClientLimitsPage() {
   }, [])
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Client Limits</h1>
-
+    <ViewShell title="Client Limits" subtitle="Per-client transactional ceilings.">
       <Tabs value="clients">
         <TabsList className="mb-4">
-          <TabsTrigger value="employees" onClick={() => navigate('/admin/limits/employees')}>
+          <TabsTrigger
+            value="employees"
+            onClick={() => navigate('/admin/settings/employee-limits')}
+          >
             Employee Limits
           </TabsTrigger>
           <TabsTrigger value="clients">Client Limits</TabsTrigger>
@@ -63,7 +64,7 @@ export function AdminClientLimitsPage() {
           <FilterBar fields={FILTER_FIELDS} values={filterValues} onChange={handleFilterChange} />
 
           {isLoading ? (
-            <LoadingSpinner />
+            <LoadingState />
           ) : data?.clients.length ? (
             <>
               <Table>
@@ -78,7 +79,7 @@ export function AdminClientLimitsPage() {
                   {data.clients.map((client) => (
                     <TableRow
                       key={client.id}
-                      className="cursor-pointer"
+                      className={`${hoverLift} ${rowEnter}`}
                       onClick={() => handleRowClick(client)}
                     >
                       <TableCell>
@@ -105,7 +106,7 @@ export function AdminClientLimitsPage() {
               <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
             </>
           ) : (
-            <p>No clients found.</p>
+            <EmptyState title="No clients found." />
           )}
         </TabsContent>
       </Tabs>
@@ -117,6 +118,6 @@ export function AdminClientLimitsPage() {
         onClose={() => setEditingClient(null)}
         onSave={() => setEditingClient(null)}
       />
-    </div>
+    </ViewShell>
   )
 }

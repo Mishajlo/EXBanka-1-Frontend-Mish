@@ -3,7 +3,6 @@ import { FilterBar } from '@/components/ui/FilterBar'
 import { ActuaryTable } from '@/components/actuaries/ActuaryTable'
 import { EditLimitDialog } from '@/components/actuaries/EditLimitDialog'
 import { PaginationControls } from '@/components/shared/PaginationControls'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import {
   useActuaries,
   useSetActuaryLimit,
@@ -13,6 +12,7 @@ import {
 import type { ActuaryFilters } from '@/types/actuary'
 import type { Actuary } from '@/types/actuary'
 import type { FilterFieldDef, FilterValues } from '@/types/filters'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -77,9 +77,10 @@ export function ActuaryListPage() {
   )
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Actuaries</h1>
-
+    <ViewShell
+      title="Actuaries"
+      subtitle="Trading employees — manage per-actuary limits and approval policy."
+    >
       <FilterBar
         fields={ACTUARY_FILTER_FIELDS}
         values={filterValues}
@@ -87,7 +88,7 @@ export function ActuaryListPage() {
       />
 
       {isLoading ? (
-        <LoadingSpinner />
+        <LoadingState />
       ) : data?.actuaries.length ? (
         <>
           <ActuaryTable
@@ -100,7 +101,7 @@ export function ActuaryListPage() {
           <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
         </>
       ) : (
-        <p>No actuaries found.</p>
+        <EmptyState title="No actuaries found." />
       )}
 
       <EditLimitDialog
@@ -109,6 +110,6 @@ export function ActuaryListPage() {
         onClose={() => setEditingActuary(null)}
         onConfirm={handleConfirmLimit}
       />
-    </div>
+    </ViewShell>
   )
 }

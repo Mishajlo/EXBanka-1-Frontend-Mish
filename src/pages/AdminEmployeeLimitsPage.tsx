@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react'
+import { EmptyState, LoadingState, ViewShell, hoverLift, rowEnter } from '@/views/shared'
 import { useNavigate } from 'react-router-dom'
 import { useEmployees } from '@/hooks/useEmployees'
 import { FilterBar } from '@/components/ui/FilterBar'
 import { PaginationControls } from '@/components/shared/PaginationControls'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EditEmployeeLimitsDialog } from '@/components/admin/EditEmployeeLimitsDialog'
 import { LimitTemplatesDialog } from '@/components/admin/LimitTemplatesDialog'
 import {
@@ -50,16 +50,15 @@ export function AdminEmployeeLimitsPage() {
   }, [])
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Employee Limits</h1>
-        <Button onClick={() => setTemplatesOpen(true)}>Manage Templates</Button>
-      </div>
-
+    <ViewShell
+      title="Employee Limits"
+      subtitle="Per-employee transactional ceilings; manage shared templates for fast assignment."
+      actions={<Button onClick={() => setTemplatesOpen(true)}>Manage Templates</Button>}
+    >
       <Tabs value="employees">
         <TabsList className="mb-4">
           <TabsTrigger value="employees">Employee Limits</TabsTrigger>
-          <TabsTrigger value="clients" onClick={() => navigate('/admin/limits/clients')}>
+          <TabsTrigger value="clients" onClick={() => navigate('/admin/settings/client-limits')}>
             Client Limits
           </TabsTrigger>
         </TabsList>
@@ -68,7 +67,7 @@ export function AdminEmployeeLimitsPage() {
           <FilterBar fields={FILTER_FIELDS} values={filterValues} onChange={handleFilterChange} />
 
           {isLoading ? (
-            <LoadingSpinner />
+            <LoadingState />
           ) : data?.employees.length ? (
             <>
               <Table>
@@ -84,7 +83,7 @@ export function AdminEmployeeLimitsPage() {
                   {data.employees.map((emp) => (
                     <TableRow
                       key={emp.id}
-                      className="cursor-pointer"
+                      className={`${hoverLift} ${rowEnter}`}
                       onClick={() => handleRowClick(emp)}
                     >
                       <TableCell>
@@ -112,7 +111,7 @@ export function AdminEmployeeLimitsPage() {
               <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
             </>
           ) : (
-            <p>No employees found.</p>
+            <EmptyState title="No employees found." />
           )}
         </TabsContent>
       </Tabs>
@@ -128,6 +127,6 @@ export function AdminEmployeeLimitsPage() {
       />
 
       <LimitTemplatesDialog open={templatesOpen} onOpenChange={setTemplatesOpen} />
-    </div>
+    </ViewShell>
   )
 }

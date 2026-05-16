@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useClient, useUpdateClient } from '@/hooks/useClients'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EditClientForm } from '@/components/admin/EditClientForm'
 import type { UpdateClientRequest } from '@/types/client'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 export function EditClientPage() {
   const { id } = useParams<{ id: string }>()
@@ -12,20 +13,29 @@ export function EditClientPage() {
   const { data: client, isLoading } = useClient(clientId)
   const updateClient = useUpdateClient(clientId)
 
-  if (isLoading) return <p>Loading...</p>
-  if (!client) return <p>Client not found.</p>
+  if (isLoading) {
+    return (
+      <ViewShell>
+        <LoadingState />
+      </ViewShell>
+    )
+  }
+  if (!client) {
+    return (
+      <ViewShell title="Client">
+        <EmptyState title="Client not found." />
+      </ViewShell>
+    )
+  }
 
   const handleSubmit = (data: UpdateClientRequest) => {
     updateClient.mutate(data, { onSuccess: () => navigate('/admin/clients') })
   }
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Client</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <ViewShell title="Edit Client" subtitle="Update profile details for this client.">
+      <Card className="max-w-lg">
+        <CardContent className="pt-6">
           <EditClientForm
             client={client}
             onSubmit={handleSubmit}
@@ -44,6 +54,6 @@ export function EditClientPage() {
           </Button>
         </CardContent>
       </Card>
-    </div>
+    </ViewShell>
   )
 }

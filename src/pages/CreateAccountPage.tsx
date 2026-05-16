@@ -1,20 +1,18 @@
 import { useNavigate } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { CreateAccountForm } from '@/components/accounts/CreateAccountForm'
+import { ViewShell } from '@/views/shared'
 
 export function CreateAccountPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Account</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <ViewShell title="Create Account" subtitle="Open a new account for an existing client.">
+      <Card className="max-w-2xl">
+        <CardContent className="pt-6">
           <CreateAccountForm onSuccess={() => navigate('/admin/accounts')} />
         </CardContent>
       </Card>
-    </div>
+    </ViewShell>
   )
 }

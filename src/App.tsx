@@ -15,14 +15,11 @@ import { AccountDetailsPage } from '@/pages/AccountDetailsPage'
 import { CreateAccountPage } from '@/pages/CreateAccountPage'
 import { CardListPage } from '@/pages/CardListPage'
 import { CardRequestPage } from '@/pages/CardRequestPage'
-import { ExchangeRatesPage } from '@/pages/ExchangeRatesPage'
+import { ExchangeRatesView } from '@/views/exchangeRates'
 import { ExchangeCalculatorPage } from '@/pages/ExchangeCalculatorPage'
-import { CreateTransferPage } from '@/pages/CreateTransferPage'
-import { TransferHistoryPage } from '@/pages/TransferHistoryPage'
-import { NewPaymentPage } from '@/pages/NewPaymentPage'
-import { InternalTransferPage } from '@/pages/InternalTransferPage'
-import { PaymentHistoryPage } from '@/pages/PaymentHistoryPage'
-import { PaymentRecipientsPage } from '@/pages/PaymentRecipientsPage'
+import { CreateTransferView, TransferHistoryView } from '@/views/transfers'
+import { InternalTransferView, NewPaymentView, PaymentHistoryView } from '@/views/payments'
+import { PaymentRecipientsView } from '@/views/paymentRecipients'
 import { LoanListPage } from '@/pages/LoanListPage'
 import { LoanDetailsPage } from '@/pages/LoanDetailsPage'
 import { LoanApplicationPage } from '@/pages/LoanApplicationPage'
@@ -35,35 +32,32 @@ import { AdminCardRequestsPage } from '@/pages/AdminCardRequestsPage'
 import { AdminLoansPage } from '@/pages/AdminLoansPage'
 import { CreateClientPage } from '@/pages/CreateClientPage'
 import { ActuaryListPage } from '@/pages/ActuaryListPage'
-import { StockExchangesPage } from '@/pages/StockExchangesPage'
-import { SecuritiesPage } from '@/pages/SecuritiesPage'
-import { StockDetailPage } from '@/pages/StockDetailPage'
-import { FuturesDetailPage } from '@/pages/FuturesDetailPage'
-import { ForexDetailPage } from '@/pages/ForexDetailPage'
-import { OptionDetailPage } from '@/pages/OptionDetailPage'
-import { CreateOrderPage } from '@/pages/CreateOrderPage'
-import { MyOrdersPage } from '@/pages/MyOrdersPage'
+import { StockExchangesView } from '@/views/stockExchanges'
+import {
+  ForexDetailView,
+  FuturesDetailView,
+  OptionDetailView,
+  SecuritiesView,
+  StockDetailView,
+} from '@/views/securities'
+import { AdminOrdersView, CreateOrderView, MyOrdersView } from '@/views/orders'
 import { PortfolioPage } from '@/pages/PortfolioPage'
 import { HoldingTransactionsPage } from '@/pages/HoldingTransactionsPage'
 import { AccountActivityPage } from '@/pages/AccountActivityPage'
-import { AdminOrdersPage } from '@/pages/AdminOrdersPage'
-import { TaxPage } from '@/pages/TaxPage'
+import { TaxView } from '@/views/tax'
 import { AdminRolesPage } from '@/pages/AdminRolesPage'
 import { AdminEmployeeLimitsPage } from '@/pages/AdminEmployeeLimitsPage'
 import { AdminClientLimitsPage } from '@/pages/AdminClientLimitsPage'
 import { AdminInterestRatesPage } from '@/pages/AdminInterestRatesPage'
-import { AdminFeesPage } from '@/pages/AdminFeesPage'
-import { AdminPeerBanksPage } from '@/pages/AdminPeerBanksPage'
-import { OtcPortalPage } from '@/pages/OtcPortalPage'
-import { FundsDiscoveryPage } from '@/pages/FundsDiscoveryPage'
-import { FundDetailsPage } from '@/pages/FundDetailsPage'
-import { CreateFundPage } from '@/pages/CreateFundPage'
+import { AdminFeesView } from '@/views/adminFees'
+import { PeerBanksView } from '@/views/peerBanks'
+import { OtcPortalView } from '@/views/otcPortal'
+import { BankFundPositionsView, CreateFundView, FundDetailsView, FundsView } from '@/views/funds'
 import { ActuaryPerformancePage } from '@/pages/ActuaryPerformancePage'
-import { BankFundPositionsPage } from '@/pages/BankFundPositionsPage'
-import { OtcContractsPage } from '@/pages/OtcContractsPage'
-import { OtcContractDetailPage } from '@/pages/OtcContractDetailPage'
+import { OtcContractDetailView, OtcContractsView } from '@/views/otcContracts'
 import { OtcOptionsView } from '@/views/otcOptions'
 import { NotificationTemplatesView } from '@/views/notificationTemplates'
+import { SettingsView } from '@/views/settings'
 import { BankAccountActivityPage } from '@/pages/BankAccountActivityPage'
 
 export default function App() {
@@ -206,7 +200,7 @@ export default function App() {
           path="/admin/stock-exchanges"
           element={
             <ProtectedRoute requiredRole="Employee">
-              <StockExchangesPage />
+              <StockExchangesView />
             </ProtectedRoute>
           }
         />
@@ -257,7 +251,7 @@ export default function App() {
           path="/exchange/rates"
           element={
             <ProtectedRoute requiredRole="Client">
-              <ExchangeRatesPage />
+              <ExchangeRatesView />
             </ProtectedRoute>
           }
         />
@@ -273,7 +267,7 @@ export default function App() {
           path="/transfers/new"
           element={
             <ProtectedRoute requiredRole="Client">
-              <CreateTransferPage />
+              <CreateTransferView />
             </ProtectedRoute>
           }
         />
@@ -281,7 +275,7 @@ export default function App() {
           path="/transfers/history"
           element={
             <ProtectedRoute requiredRole="Client">
-              <TransferHistoryPage />
+              <TransferHistoryView />
             </ProtectedRoute>
           }
         />
@@ -289,7 +283,7 @@ export default function App() {
           path="/payments/new"
           element={
             <ProtectedRoute requiredRole="Client">
-              <NewPaymentPage />
+              <NewPaymentView />
             </ProtectedRoute>
           }
         />
@@ -297,7 +291,7 @@ export default function App() {
           path="/payments/transfer"
           element={
             <ProtectedRoute requiredRole="Client">
-              <InternalTransferPage />
+              <InternalTransferView />
             </ProtectedRoute>
           }
         />
@@ -305,7 +299,7 @@ export default function App() {
           path="/payments/history"
           element={
             <ProtectedRoute requiredRole="Client">
-              <PaymentHistoryPage />
+              <PaymentHistoryView />
             </ProtectedRoute>
           }
         />
@@ -313,7 +307,7 @@ export default function App() {
           path="/payments/recipients"
           element={
             <ProtectedRoute requiredRole="Client">
-              <PaymentRecipientsPage />
+              <PaymentRecipientsView />
             </ProtectedRoute>
           }
         />
@@ -343,27 +337,27 @@ export default function App() {
         />
 
         {/* Shared trading routes (any authenticated user) */}
-        <Route path="/securities" element={<SecuritiesPage />} />
-        <Route path="/securities/stocks/:id" element={<StockDetailPage />} />
-        <Route path="/securities/futures/:id" element={<FuturesDetailPage />} />
-        <Route path="/securities/forex/:id" element={<ForexDetailPage />} />
-        <Route path="/securities/options/:id" element={<OptionDetailPage />} />
-        <Route path="/securities/order/new" element={<CreateOrderPage />} />
-        <Route path="/orders" element={<MyOrdersPage />} />
-        <Route path="/otc" element={<OtcPortalPage />} />
+        <Route path="/securities" element={<SecuritiesView />} />
+        <Route path="/securities/stocks/:id" element={<StockDetailView />} />
+        <Route path="/securities/futures/:id" element={<FuturesDetailView />} />
+        <Route path="/securities/forex/:id" element={<ForexDetailView />} />
+        <Route path="/securities/options/:id" element={<OptionDetailView />} />
+        <Route path="/securities/order/new" element={<CreateOrderView />} />
+        <Route path="/orders" element={<MyOrdersView />} />
+        <Route path="/otc" element={<OtcPortalView />} />
         <Route path="/otc/options" element={<OtcOptionsView />} />
-        <Route path="/otc/contracts" element={<OtcContractsPage />} />
-        <Route path="/otc/contracts/:id" element={<OtcContractDetailPage />} />
-        <Route path="/funds" element={<FundsDiscoveryPage />} />
+        <Route path="/otc/contracts" element={<OtcContractsView />} />
+        <Route path="/otc/contracts/:id" element={<OtcContractDetailView />} />
+        <Route path="/funds" element={<FundsView />} />
         <Route
           path="/funds/new"
           element={
             <ProtectedRoute requiredPermission="funds.manage">
-              <CreateFundPage />
+              <CreateFundView />
             </ProtectedRoute>
           }
         />
-        <Route path="/funds/:id" element={<FundDetailsPage />} />
+        <Route path="/funds/:id" element={<FundDetailsView />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/portfolio/holdings/:id/transactions" element={<HoldingTransactionsPage />} />
 
@@ -372,7 +366,7 @@ export default function App() {
           path="/admin/orders"
           element={
             <ProtectedRoute requireSupervisorOrAdmin>
-              <AdminOrdersPage />
+              <AdminOrdersView />
             </ProtectedRoute>
           }
         />
@@ -380,7 +374,7 @@ export default function App() {
           path="/admin/tax"
           element={
             <ProtectedRoute requireAdmin>
-              <TaxPage />
+              <TaxView />
             </ProtectedRoute>
           }
         />
@@ -396,67 +390,60 @@ export default function App() {
           path="/admin/profit/funds"
           element={
             <ProtectedRoute requiredPermission="funds.bank-position-read">
-              <BankFundPositionsPage />
+              <BankFundPositionsView />
             </ProtectedRoute>
           }
         />
 
-        {/* Admin settings routes */}
+        {/* Admin settings — consolidated under one /admin/settings hub */}
         <Route
-          path="/admin/roles"
+          path="/admin/settings"
           element={
             <ProtectedRoute requireAdmin>
-              <AdminRolesPage />
+              <SettingsView />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<Navigate to="notifications" replace />} />
+          <Route
+            path="notifications"
+            element={
+              <ProtectedRoute requiredPermission="notifications.templates.manage">
+                <NotificationTemplatesView />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="fees" element={<AdminFeesView />} />
+          <Route path="peer-banks" element={<PeerBanksView />} />
+          <Route path="roles" element={<AdminRolesPage />} />
+          <Route path="interest-rates" element={<AdminInterestRatesPage />} />
+          <Route path="employee-limits" element={<AdminEmployeeLimitsPage />} />
+          <Route path="client-limits" element={<AdminClientLimitsPage />} />
+        </Route>
+
+        {/* Legacy settings routes — redirect to the consolidated hub so
+            existing links and bookmarks keep working. */}
+        <Route path="/admin/roles" element={<Navigate to="/admin/settings/roles" replace />} />
         <Route
           path="/admin/limits/employees"
-          element={
-            <ProtectedRoute requireAdmin>
-              <AdminEmployeeLimitsPage />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/admin/settings/employee-limits" replace />}
         />
         <Route
           path="/admin/limits/clients"
-          element={
-            <ProtectedRoute requireAdmin>
-              <AdminClientLimitsPage />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/admin/settings/client-limits" replace />}
         />
         <Route
           path="/admin/interest-rates"
-          element={
-            <ProtectedRoute requireAdmin>
-              <AdminInterestRatesPage />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/admin/settings/interest-rates" replace />}
         />
-        <Route
-          path="/admin/fees"
-          element={
-            <ProtectedRoute requireAdmin>
-              <AdminFeesPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/admin/fees" element={<Navigate to="/admin/settings/fees" replace />} />
         <Route
           path="/admin/peer-banks"
-          element={
-            <ProtectedRoute requireAdmin>
-              <AdminPeerBanksPage />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/admin/settings/peer-banks" replace />}
         />
         <Route
           path="/admin/notification-templates"
-          element={
-            <ProtectedRoute requiredPermission="notifications.templates.manage">
-              <NotificationTemplatesView />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/admin/settings/notifications" replace />}
         />
       </Route>
 

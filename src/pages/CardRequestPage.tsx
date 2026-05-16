@@ -7,6 +7,7 @@ import { AuthorizedPersonForm } from '@/components/cards/AuthorizedPersonForm'
 import { Button } from '@/components/ui/button'
 import type { CreateAuthorizedPersonRequest } from '@/types/authorized-person'
 import type { CardBrand } from '@/types/card'
+import { LoadingState, ViewShell } from '@/views/shared'
 
 type Step = 'select' | 'business-choice' | 'authorized-person' | 'success'
 
@@ -21,7 +22,13 @@ export function CardRequestPage() {
   const [selectedBrand, setSelectedBrand] = useState<CardBrand | undefined>()
   const [error, setError] = useState<string | null>(null)
 
-  if (isLoading) return <p>Loading...</p>
+  if (isLoading) {
+    return (
+      <ViewShell>
+        <LoadingState />
+      </ViewShell>
+    )
+  }
 
   const onMutationError = () => setError('An error occurred. Please try again.')
 
@@ -80,39 +87,49 @@ export function CardRequestPage() {
 
   if (step === 'success') {
     return (
-      <div className="space-y-4 text-center">
-        <h2 className="text-xl font-semibold">Card request submitted!</h2>
+      <ViewShell title="Card request submitted">
         <p className="text-muted-foreground">
           Your card request has been received and is pending approval.
         </p>
         <Button onClick={() => navigate('/cards')}>Back to Cards</Button>
-      </div>
+      </ViewShell>
     )
   }
 
   if (step === 'authorized-person') {
     return (
-      <div className="space-y-4">
-        <Button variant="ghost" onClick={() => setStep('business-choice')}>
-          ← Back
-        </Button>
+      <ViewShell
+        title={
+          <span className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => setStep('business-choice')}>
+              ← Back
+            </Button>
+            Authorized Person Details
+          </span>
+        }
+      >
         {errorBanner}
         <AuthorizedPersonForm
           onSubmit={handleRequestForAP}
           loading={requestForAP.isPending || requestCard.isPending}
         />
-      </div>
+      </ViewShell>
     )
   }
 
   if (step === 'business-choice') {
     return (
-      <div className="space-y-4">
-        <Button variant="ghost" onClick={() => setStep('select')}>
-          ← Back
-        </Button>
+      <ViewShell
+        title={
+          <span className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => setStep('select')}>
+              ← Back
+            </Button>
+            Who do you want a card for?
+          </span>
+        }
+      >
         {errorBanner}
-        <h2 className="text-lg font-semibold">Who do you want a card for?</h2>
         <div className="flex gap-3">
           <Button onClick={handleRequestForSelf} disabled={requestCard.isPending}>
             For Myself
@@ -121,21 +138,27 @@ export function CardRequestPage() {
             For Authorized Person
           </Button>
         </div>
-      </div>
+      </ViewShell>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <Button variant="ghost" onClick={() => navigate('/cards')}>
-        ← Back
-      </Button>
+    <ViewShell
+      title={
+        <span className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/cards')}>
+            ← Back
+          </Button>
+          Request a Card
+        </span>
+      }
+    >
       {errorBanner}
       <CardRequestForm
         accounts={accounts}
         onSubmit={handleSelectAccount}
         loading={requestCard.isPending}
       />
-    </div>
+    </ViewShell>
   )
 }

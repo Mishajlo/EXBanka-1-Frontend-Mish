@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { LOAN_TYPES } from '@/lib/constants/banking'
 import { LoanDetails } from '@/components/loans/LoanDetails'
 import { InstallmentTable } from '@/components/loans/InstallmentTable'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 export function LoanDetailsPage() {
   const { id } = useParams<{ id: string }>()
@@ -12,23 +13,34 @@ export function LoanDetailsPage() {
   const { data: loan, isLoading } = useLoan(loanId)
   const { data: installments = [] } = useLoanInstallments(loanId)
 
-  if (isLoading) return <p>Loading...</p>
-  if (!loan) return <p>Loan not found.</p>
+  if (isLoading) {
+    return (
+      <ViewShell>
+        <LoadingState />
+      </ViewShell>
+    )
+  }
+  if (!loan) {
+    return (
+      <ViewShell title="Loan">
+        <EmptyState title="Loan not found." />
+      </ViewShell>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate('/loans')}>
-          ← Back
-        </Button>
-        <h1 className="text-2xl font-bold">
+    <ViewShell
+      title={
+        <span className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/loans')}>
+            ← Back
+          </Button>
           {LOAN_TYPES.find((t) => t.value === loan.loan_type)?.label ?? loan.loan_type}
-        </h1>
-      </div>
-
+        </span>
+      }
+    >
       <LoanDetails loan={loan} />
-
       <InstallmentTable installments={installments} />
-    </div>
+    </ViewShell>
   )
 }

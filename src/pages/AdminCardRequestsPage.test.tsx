@@ -47,7 +47,7 @@ describe('AdminCardRequestsPage', () => {
 
   it('renders page heading', () => {
     renderWithProviders(<AdminCardRequestsPage />)
-    expect(screen.getByText(/card requests/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /card requests/i, level: 1 })).toBeInTheDocument()
   })
 
   it('renders table rows with client name, account number and card type', () => {

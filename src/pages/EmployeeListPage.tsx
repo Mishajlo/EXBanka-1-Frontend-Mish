@@ -5,10 +5,10 @@ import { EmployeeTable } from '@/components/employees/EmployeeTable'
 import { FilterBar } from '@/components/ui/FilterBar'
 import { EmployeeProfileTab } from '@/components/employees/EmployeeProfileTab'
 import { PaginationControls } from '@/components/shared/PaginationControls'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { useEmployees } from '@/hooks/useEmployees'
 import type { EmployeeFilters as EmployeeFiltersType } from '@/types/employee'
 import type { FilterFieldDef, FilterValues } from '@/types/filters'
+import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -42,17 +42,18 @@ export function EmployeeListPage() {
   const handleRowClick = useCallback((id: number) => navigate(`/employees/${id}`), [navigate])
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Employees</h1>
+    <ViewShell
+      title="Employees"
+      subtitle="Manage employee accounts; switch to the Me tab to update your own profile."
+      actions={
         <Link
           to="/employees/new"
           className="inline-flex items-center justify-center rounded-lg bg-accent-2 px-2.5 py-1.5 text-sm font-medium text-accent-2-foreground transition-colors hover:bg-accent-2/90"
         >
           Create Employee
         </Link>
-      </div>
-
+      }
+    >
       <Tabs defaultValue="employees">
         <TabsList className="mb-4">
           <TabsTrigger value="employees">Employees</TabsTrigger>
@@ -67,7 +68,7 @@ export function EmployeeListPage() {
           />
 
           {isLoading ? (
-            <LoadingSpinner />
+            <LoadingState />
           ) : data?.employees.length ? (
             <>
               <EmployeeTable employees={data.employees} onRowClick={handleRowClick} />
@@ -75,7 +76,7 @@ export function EmployeeListPage() {
               <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
             </>
           ) : (
-            <p>No employees found.</p>
+            <EmptyState title="No employees found." />
           )}
         </TabsContent>
 
@@ -83,6 +84,6 @@ export function EmployeeListPage() {
           <EmployeeProfileTab />
         </TabsContent>
       </Tabs>
-    </div>
+    </ViewShell>
   )
 }

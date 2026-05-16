@@ -90,7 +90,7 @@ describe('BankAccountActivityPage', () => {
       route: '/admin/bank-accounts/1/activity',
       routePath: '/admin/bank-accounts/:id/activity',
     })
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 
   it('shows empty state when no entries', () => {

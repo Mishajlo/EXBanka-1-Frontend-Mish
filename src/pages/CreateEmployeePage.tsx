@@ -4,6 +4,7 @@ import { ErrorMessage } from '@/components/shared/ErrorMessage'
 import { useMutationWithRedirect } from '@/hooks/useMutationWithRedirect'
 import { createEmployee } from '@/lib/api/employees'
 import type { CreateEmployeeRequest } from '@/types/employee'
+import { ViewShell } from '@/views/shared'
 
 export function CreateEmployeePage() {
   const mutation = useMutationWithRedirect({
@@ -13,16 +14,19 @@ export function CreateEmployeePage() {
   })
 
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-6">
-        <BackButton to="/employees" />
-        <h1 className="text-2xl font-bold">Create Employee</h1>
-      </div>
+    <ViewShell
+      title={
+        <span className="flex items-center gap-3">
+          <BackButton to="/employees" />
+          Create Employee
+        </span>
+      }
+    >
       <EmployeeForm
         onSubmit={(data) => mutation.mutate(data as CreateEmployeeRequest)}
         isLoading={mutation.isPending}
       />
       {mutation.isError && <ErrorMessage message="Failed to create employee." />}
-    </div>
+    </ViewShell>
   )
 }

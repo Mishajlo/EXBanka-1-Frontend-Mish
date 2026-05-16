@@ -19,6 +19,7 @@ import {
 import { useBidOrCounter } from '@/views/otcOptions/hooks/useBidOrCounter'
 import { useCreateOtcOption } from '@/views/otcOptions/hooks/useOtcOptionMutations'
 import type { OtcOptionRow, OtcOptionsMode, OtcOwnerType } from '@/views/otcOptions/types'
+import { ViewShell, LoadingState, ErrorState, panelEnter } from '@/views/shared'
 
 export function OtcOptionsView() {
   const user = useAppSelector(selectCurrentUser)
@@ -72,19 +73,19 @@ export function OtcOptionsView() {
 
   if (activityOffer) {
     return (
-      <div className="p-6">
+      <ViewShell className={panelEnter}>
         <OfferActivityPanel
           offer={activityOffer}
           accounts={accounts}
           onBack={() => setActivityOffer(null)}
         />
-      </div>
+      </ViewShell>
     )
   }
 
   if (bidderOffer && currentBidder) {
     return (
-      <div className="p-6">
+      <ViewShell className={panelEnter}>
         <BidderActivityPanel
           offer={bidderOffer}
           accounts={accounts}
@@ -95,7 +96,7 @@ export function OtcOptionsView() {
             setBidOffer(row)
           }}
         />
-      </div>
+      </ViewShell>
     )
   }
 
@@ -106,12 +107,10 @@ export function OtcOptionsView() {
   }
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">OTC Options</h1>
-        <Button onClick={() => setCreateOpen(true)}>New listing</Button>
-      </div>
-
+    <ViewShell
+      title="OTC Options"
+      actions={<Button onClick={() => setCreateOpen(true)}>New listing</Button>}
+    >
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <CardTitle className="text-base">Marketplace</CardTitle>
@@ -124,8 +123,8 @@ export function OtcOptionsView() {
         </CardHeader>
         <CardContent>
           {banner && <p className="text-xs text-muted-foreground mb-3">{banner}</p>}
-          {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
-          {error && <p className="text-sm text-destructive">Could not load offers.</p>}
+          {loading && <LoadingState />}
+          {error && <ErrorState message="Could not load offers." />}
           {!loading && !error && (
             <OtcOptionsTable
               rows={rows}
@@ -172,6 +171,6 @@ export function OtcOptionsView() {
           createListing.mutate(payload, { onSuccess: () => setCreateOpen(false) })
         }}
       />
-    </div>
+    </ViewShell>
   )
 }

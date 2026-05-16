@@ -6,6 +6,7 @@ import { FilterBar } from '@/components/ui/FilterBar'
 import { ClientTable } from '@/components/admin/ClientTable'
 import { PaginationControls } from '@/components/shared/PaginationControls'
 import type { FilterFieldDef, FilterValues } from '@/types/filters'
+import { LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -34,12 +35,11 @@ export function AdminClientsPage() {
   const totalPages = Math.max(1, Math.ceil((data?.total ?? 0) / PAGE_SIZE))
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Client Management</h1>
-        <Button onClick={() => navigate('/admin/clients/new')}>New Client</Button>
-      </div>
-
+    <ViewShell
+      title="Client Management"
+      subtitle="Browse, search, and edit registered clients."
+      actions={<Button onClick={() => navigate('/admin/clients/new')}>New Client</Button>}
+    >
       <FilterBar
         fields={CLIENT_FILTER_FIELDS}
         values={filterValues}
@@ -47,7 +47,7 @@ export function AdminClientsPage() {
       />
 
       {isLoading ? (
-        <p>Loading...</p>
+        <LoadingState />
       ) : (
         <ClientTable
           clients={clients}
@@ -56,6 +56,6 @@ export function AdminClientsPage() {
       )}
 
       <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
-    </div>
+    </ViewShell>
   )
 }

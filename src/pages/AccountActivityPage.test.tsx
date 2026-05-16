@@ -54,6 +54,6 @@ describe('AccountActivityPage', () => {
   it('shows loading spinner while fetching', () => {
     jest.mocked(accountsApi.getAccountActivity).mockReturnValue(new Promise(() => {}))
     renderWithProviders(<AccountActivityPage />)
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 })

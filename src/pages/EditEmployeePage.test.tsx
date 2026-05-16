@@ -40,7 +40,7 @@ describe('EditEmployeePage', () => {
       routePath: '/employees/:id',
     })
 
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 
   it('has a back button that navigates to /employees', async () => {

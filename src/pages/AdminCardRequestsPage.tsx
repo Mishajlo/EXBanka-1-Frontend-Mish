@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { PaginationControls } from '@/components/shared/PaginationControls'
 import { CardRequestDenyDialog } from '@/components/cards/CardRequestDenyDialog'
+import { LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
@@ -38,10 +39,9 @@ export function AdminCardRequestsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Card Requests</h1>
+    <ViewShell title="Card Requests" subtitle="Pending client card requests awaiting approval.">
       {isLoading ? (
-        <p>Loading...</p>
+        <LoadingState />
       ) : (
         <Table>
           <TableHeader>
@@ -101,6 +101,6 @@ export function AdminCardRequestsPage() {
         onConfirm={handleDenyConfirm}
       />
       <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} />
-    </div>
+    </ViewShell>
   )
 }

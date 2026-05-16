@@ -73,7 +73,7 @@ describe('AdminRolesPage', () => {
 
     renderWithProviders(<AdminRolesPage />)
 
-    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+    expect(screen.getByTestId('view-loading')).toBeInTheDocument()
   })
 
   it('shows "No roles found." when there are no roles', async () => {

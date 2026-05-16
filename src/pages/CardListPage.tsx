@@ -16,6 +16,7 @@ import { SetCardPinDialog } from '@/components/cards/SetCardPinDialog'
 import { VerifyCardPinDialog } from '@/components/cards/VerifyCardPinDialog'
 import { CreateVirtualCardDialog } from '@/components/cards/CreateVirtualCardDialog'
 import type { Card as CardModel } from '@/types/card'
+import { ErrorState, LoadingState, ViewShell } from '@/views/shared'
 
 export function CardListPage() {
   const navigate = useNavigate()
@@ -30,20 +31,34 @@ export function CardListPage() {
   const [virtualOpen, setVirtualOpen] = useState(false)
   const holderName = client ? `${client.first_name} ${client.last_name}` : undefined
 
-  if (isLoading) return <p>Loading...</p>
-  if (error) return <p className="text-destructive">Error loading cards. Please try again.</p>
+  if (isLoading) {
+    return (
+      <ViewShell>
+        <LoadingState />
+      </ViewShell>
+    )
+  }
+  if (error) {
+    return (
+      <ViewShell title="Cards">
+        <ErrorState message="Error loading cards. Please try again." />
+      </ViewShell>
+    )
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center flex-wrap gap-2">
-        <h1 className="text-2xl font-bold">Cards</h1>
-        <div className="flex gap-2">
+    <ViewShell
+      title="Cards"
+      subtitle="Your physical and virtual cards. Manage PINs, request new cards, or block lost ones."
+      actions={
+        <>
           <Button variant="outline" onClick={() => setVirtualOpen(true)} disabled={!client}>
             Create Virtual Card
           </Button>
           <Button onClick={() => navigate('/cards/request')}>Request Card</Button>
-        </div>
-      </div>
+        </>
+      }
+    >
       <CardGrid
         cards={cards ?? []}
         onBlock={(id) => setBlockingCardId(id)}
@@ -103,6 +118,6 @@ export function CardListPage() {
           ownerId={client.id}
         />
       )}
-    </div>
+    </ViewShell>
   )
 }
