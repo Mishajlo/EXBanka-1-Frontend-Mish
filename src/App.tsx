@@ -60,10 +60,9 @@ import { FundDetailsPage } from '@/pages/FundDetailsPage'
 import { CreateFundPage } from '@/pages/CreateFundPage'
 import { ActuaryPerformancePage } from '@/pages/ActuaryPerformancePage'
 import { BankFundPositionsPage } from '@/pages/BankFundPositionsPage'
-import { OtcOffersPage } from '@/pages/OtcOffersPage'
-import { OtcOfferDetailPage } from '@/pages/OtcOfferDetailPage'
 import { OtcContractsPage } from '@/pages/OtcContractsPage'
 import { OtcContractDetailPage } from '@/pages/OtcContractDetailPage'
+import { OtcOptionsView } from '@/views/otcOptions'
 import { BankAccountActivityPage } from '@/pages/BankAccountActivityPage'
 
 export default function App() {
@@ -351,8 +350,7 @@ export default function App() {
         <Route path="/securities/order/new" element={<CreateOrderPage />} />
         <Route path="/orders" element={<MyOrdersPage />} />
         <Route path="/otc" element={<OtcPortalPage />} />
-        <Route path="/otc/offers" element={<OtcOffersPage />} />
-        <Route path="/otc/offers/:id" element={<OtcOfferDetailPage />} />
+        <Route path="/otc/options" element={<OtcOptionsView />} />
         <Route path="/otc/contracts" element={<OtcContractsPage />} />
         <Route path="/otc/contracts/:id" element={<OtcContractDetailPage />} />
         <Route path="/funds" element={<FundsDiscoveryPage />} />
