@@ -15,7 +15,6 @@ import {
   HandCoins,
   LineChart,
   Handshake,
-  MessageSquare,
   FileSignature,
   PiggyBank,
   PlusSquare,
@@ -135,8 +134,8 @@ function ClientNav({ canManageFunds }: { canManageFunds: boolean }) {
         <NavItem to="/otc" icon={Handshake}>
           OTC Market
         </NavItem>
-        <NavItem to="/otc/offers" icon={MessageSquare}>
-          OTC Offers
+        <NavItem to="/otc/options" icon={Handshake}>
+          OTC Options
         </NavItem>
         <NavItem to="/otc/contracts" icon={FileSignature}>
           OTC Contracts
@@ -210,8 +209,8 @@ function EmployeeNav({
         <NavItem to="/otc" icon={Handshake}>
           OTC Market
         </NavItem>
-        <NavItem to="/otc/offers" icon={MessageSquare}>
-          OTC Offers
+        <NavItem to="/otc/options" icon={Handshake}>
+          OTC Options
         </NavItem>
         <NavItem to="/otc/contracts" icon={FileSignature}>
           OTC Contracts

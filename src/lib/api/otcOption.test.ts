@@ -1,105 +1,19 @@
 import { apiClient } from '@/lib/api/axios'
 import {
-  createOtcOptionOffer,
-  counterOtcOptionOffer,
-  acceptOtcOptionOffer,
-  rejectOtcOptionOffer,
-  getOtcOptionOffer,
-  getMyOtcOptionOffers,
-  getOtcOptionContract,
-  getMyOtcOptionContracts,
   exerciseOtcOptionContract,
+  getMyOtcOptionContracts,
+  getOtcOptionContract,
 } from '@/lib/api/otcOption'
-import {
-  createMockOtcOptionOffer,
-  createMockOptionContract,
-  createMockOtcOfferRevision,
-} from '@/__tests__/fixtures/otcOption-fixtures'
+import { createMockOptionContract } from '@/__tests__/fixtures/otcOption-fixtures'
 
 jest.mock('@/lib/api/axios', () => ({
-  apiClient: { get: jest.fn(), post: jest.fn() },
+  apiClient: { get: jest.fn(), post: jest.fn(), delete: jest.fn() },
 }))
 
 const mockGet = jest.mocked(apiClient.get)
 const mockPost = jest.mocked(apiClient.post)
 
 beforeEach(() => jest.clearAllMocks())
-
-describe('createOtcOptionOffer', () => {
-  it('POST /otc/offers', async () => {
-    mockPost.mockResolvedValue({ data: { offer: createMockOtcOptionOffer() } })
-    await createOtcOptionOffer({
-      direction: 'sell_initiated',
-      stock_id: 42,
-      quantity: '100',
-      strike_price: '5000.00',
-      premium: '50000.00',
-      settlement_date: '2026-06-05',
-    })
-    expect(mockPost).toHaveBeenCalledWith(
-      '/otc/offers',
-      expect.objectContaining({ direction: 'sell_initiated' })
-    )
-  })
-})
-
-describe('counterOtcOptionOffer', () => {
-  it('POST /otc/offers/:id/counter', async () => {
-    mockPost.mockResolvedValue({ data: { offer: createMockOtcOptionOffer() } })
-    await counterOtcOptionOffer(1001, { premium: '52000' })
-    expect(mockPost).toHaveBeenCalledWith('/otc/offers/1001/counter', { premium: '52000' })
-  })
-})
-
-describe('acceptOtcOptionOffer', () => {
-  it('POST /otc/offers/:id/accept', async () => {
-    mockPost.mockResolvedValue({
-      data: { offer: createMockOtcOptionOffer(), contract: createMockOptionContract() },
-    })
-    await acceptOtcOptionOffer(1001, { buyer_account_id: 5, seller_account_id: 9 })
-    expect(mockPost).toHaveBeenCalledWith('/otc/offers/1001/accept', {
-      buyer_account_id: 5,
-      seller_account_id: 9,
-    })
-  })
-})
-
-describe('rejectOtcOptionOffer', () => {
-  it('POST /otc/offers/:id/reject (no body)', async () => {
-    mockPost.mockResolvedValue({ data: { offer: createMockOtcOptionOffer() } })
-    await rejectOtcOptionOffer(1001)
-    expect(mockPost).toHaveBeenCalledWith('/otc/offers/1001/reject')
-  })
-})
-
-describe('getOtcOptionOffer', () => {
-  it('GET /otc/offers/:id with revisions', async () => {
-    mockGet.mockResolvedValue({
-      data: { offer: createMockOtcOptionOffer(), revisions: [createMockOtcOfferRevision()] },
-    })
-    const result = await getOtcOptionOffer(1001)
-    expect(mockGet).toHaveBeenCalledWith('/otc/offers/1001')
-    expect(result.revisions).toHaveLength(1)
-  })
-
-  it('defaults revisions[] to []', async () => {
-    mockGet.mockResolvedValue({
-      data: { offer: createMockOtcOptionOffer(), revisions: null },
-    })
-    const result = await getOtcOptionOffer(1001)
-    expect(result.revisions).toEqual([])
-  })
-})
-
-describe('getMyOtcOptionOffers', () => {
-  it('GET /me/otc/offers with role filter', async () => {
-    mockGet.mockResolvedValue({ data: { offers: [createMockOtcOptionOffer()], total: 1 } })
-    await getMyOtcOptionOffers({ role: 'initiator' })
-    expect(mockGet).toHaveBeenCalledWith('/me/otc/offers', {
-      params: { role: 'initiator' },
-    })
-  })
-})
 
 describe('getOtcOptionContract', () => {
   it('GET /otc/contracts/:id', async () => {
@@ -114,6 +28,12 @@ describe('getMyOtcOptionContracts', () => {
     mockGet.mockResolvedValue({ data: { contracts: [createMockOptionContract()], total: 1 } })
     await getMyOtcOptionContracts({ role: 'buyer' })
     expect(mockGet).toHaveBeenCalledWith('/me/otc/contracts', { params: { role: 'buyer' } })
+  })
+
+  it('defaults contracts[] to [] when the response omits it', async () => {
+    mockGet.mockResolvedValue({ data: {} })
+    const result = await getMyOtcOptionContracts()
+    expect(result.contracts).toEqual([])
   })
 })
 
@@ -130,10 +50,7 @@ describe('exerciseOtcOptionContract', () => {
         },
       },
     })
-    await exerciseOtcOptionContract(5001, { buyer_account_id: 5, seller_account_id: 9 })
-    expect(mockPost).toHaveBeenCalledWith('/otc/contracts/5001/exercise', {
-      buyer_account_id: 5,
-      seller_account_id: 9,
-    })
+    await exerciseOtcOptionContract(5001, {})
+    expect(mockPost).toHaveBeenCalledWith('/otc/contracts/5001/exercise', {})
   })
 })

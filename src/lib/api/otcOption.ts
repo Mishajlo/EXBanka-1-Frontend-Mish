@@ -1,61 +1,11 @@
 import { apiClient } from '@/lib/api/axios'
 import type {
-  OtcOffer,
-  CreateOtcOfferPayload,
-  CounterOtcOfferPayload,
-  AcceptOtcOfferPayload,
   ExerciseContractPayload,
-  OtcOfferDetailResponse,
-  MyOffersFilters,
-  MyOtcOffersResponse,
+  ExerciseOtcContractResponse,
   MyContractsFilters,
   MyOtcContractsResponse,
   OptionContract,
-  AcceptOtcOfferResponse,
-  ExerciseOtcContractResponse,
 } from '@/types/otcOption'
-
-export async function createOtcOptionOffer(
-  payload: CreateOtcOfferPayload
-): Promise<{ offer: OtcOffer }> {
-  const { data } = await apiClient.post<{ offer: OtcOffer }>('/otc/offers', payload)
-  return data
-}
-
-export async function counterOtcOptionOffer(
-  id: number,
-  payload: CounterOtcOfferPayload
-): Promise<{ offer: OtcOffer }> {
-  const { data } = await apiClient.post<{ offer: OtcOffer }>(`/otc/offers/${id}/counter`, payload)
-  return data
-}
-
-export async function acceptOtcOptionOffer(
-  id: number,
-  payload: AcceptOtcOfferPayload
-): Promise<AcceptOtcOfferResponse> {
-  const { data } = await apiClient.post<AcceptOtcOfferResponse>(`/otc/offers/${id}/accept`, payload)
-  return data
-}
-
-export async function rejectOtcOptionOffer(id: number): Promise<{ offer: OtcOffer }> {
-  const { data } = await apiClient.post<{ offer: OtcOffer }>(`/otc/offers/${id}/reject`)
-  return data
-}
-
-export async function getOtcOptionOffer(id: number): Promise<OtcOfferDetailResponse> {
-  const { data } = await apiClient.get<OtcOfferDetailResponse>(`/otc/offers/${id}`)
-  return { ...data, revisions: data.revisions ?? [] }
-}
-
-export async function getMyOtcOptionOffers(
-  filters: MyOffersFilters = {}
-): Promise<MyOtcOffersResponse> {
-  const { data } = await apiClient.get<MyOtcOffersResponse>('/me/otc/offers', {
-    params: filters,
-  })
-  return { ...data, offers: data.offers ?? [] }
-}
 
 export async function getOtcOptionContract(id: number): Promise<{ contract: OptionContract }> {
   const { data } = await apiClient.get<{ contract: OptionContract }>(`/otc/contracts/${id}`)
