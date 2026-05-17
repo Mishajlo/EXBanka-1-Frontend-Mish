@@ -25,7 +25,7 @@ export function HomeView() {
   const recentTransactions = paymentsData?.payments ?? []
 
   return (
-    <ViewShell title={`Welcome, ${user?.email ?? ''}!`} subtitle="Your accounts overview.">
+    <ViewShell title={`Welcome, ${user?.email ?? ''}!`} subtitle="Your Accounts Overview">
       <div className="grid grid-cols-2 gap-4">
         <Card>
           <CardHeader>

@@ -129,7 +129,7 @@ export function NewPaymentView() {
     )
 
     return (
-      <ViewShell title="Payment successful">
+      <ViewShell title="Payment successful!">
         <Card>
           <CardContent className="pt-6 space-y-4 text-center">
             <p>Transaction ID: {result.id}</p>

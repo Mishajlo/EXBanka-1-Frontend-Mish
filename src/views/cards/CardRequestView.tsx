@@ -87,7 +87,7 @@ export function CardRequestView() {
 
   if (step === 'success') {
     return (
-      <ViewShell title="Card request submitted">
+      <ViewShell title="Card request submitted!">
         <p className="text-muted-foreground">
           Your card request has been received and is pending approval.
         </p>

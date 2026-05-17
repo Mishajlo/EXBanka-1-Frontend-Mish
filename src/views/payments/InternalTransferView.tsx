@@ -86,7 +86,7 @@ export function InternalTransferView() {
 
   if (step === 'success' && result) {
     return (
-      <ViewShell title="Transfer successful">
+      <ViewShell title="Transfer successful!">
         <Card>
           <CardContent className="pt-6 space-y-4 text-center">
             <p>Transaction ID: {result.id}</p>

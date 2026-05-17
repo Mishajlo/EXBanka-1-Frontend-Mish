@@ -27,7 +27,7 @@ export function LoanApplicationView() {
 
   if (step === 'success' && result) {
     return (
-      <ViewShell title="Loan request submitted">
+      <ViewShell title="Loan request submitted successfully!">
         <p className="text-muted-foreground">Your request is being processed.</p>
         <div className="flex gap-3">
           <Button onClick={() => navigate('/loans')}>Back to Loans</Button>
