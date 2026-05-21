@@ -9,20 +9,20 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { useSetCardPin, useVerifyCardPin } from '@/hooks/useCards'
+import { useMyCard, useSetCardPin, useVerifyCardPin } from '@/hooks/useCards'
 import { notifySuccess, notifyError } from '@/lib/errors'
-import type { Card } from '@/types/card'
 
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
-  card: Card
+  cardId: number
 }
 
 const PIN_RE = /^\d{4}$/
 
-export function SetCardPinDialog({ open, onOpenChange, card }: Props) {
-  const hasExistingPin = card.pin != null
+export function SetCardPinDialog({ open, onOpenChange, cardId }: Props) {
+  const { data: card, isLoading: isCardLoading } = useMyCard(cardId)
+  const hasExistingPin = card?.pin != null
   const [current, setCurrent] = useState('')
   const [pin, setPin] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -34,7 +34,7 @@ export function SetCardPinDialog({ open, onOpenChange, card }: Props) {
 
   const finishSet = () => {
     setPinMutation.mutate(
-      { cardId: card.id, pin },
+      { cardId, pin },
       {
         onSuccess: () => {
           notifySuccess(hasExistingPin ? 'PIN changed successfully.' : 'PIN set successfully.')
@@ -56,7 +56,7 @@ export function SetCardPinDialog({ open, onOpenChange, card }: Props) {
       return
     }
     verifyMutation.mutate(
-      { cardId: card.id, pin: current },
+      { cardId, pin: current },
       {
         onSuccess: () => finishSet(),
         onError: () => {
@@ -74,62 +74,68 @@ export function SetCardPinDialog({ open, onOpenChange, card }: Props) {
         <DialogHeader>
           <DialogTitle>{hasExistingPin ? 'Change card PIN' : 'Set card PIN'}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 py-2">
-          {hasExistingPin && (
-            <div>
-              <Label htmlFor="card-pin-current">Current PIN</Label>
-              <Input
-                id="card-pin-current"
-                aria-label="Current PIN"
-                type="password"
-                inputMode="numeric"
-                maxLength={4}
-                value={current}
-                onChange={(e) => setCurrent(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                autoComplete="current-password"
-              />
-              {currentError && <p className="text-xs text-destructive mt-1">{currentError}</p>}
+        {isCardLoading ? (
+          <div className="py-8 text-center text-sm text-muted-foreground">Loading card...</div>
+        ) : (
+          <>
+            <div className="space-y-3 py-2">
+              {hasExistingPin && (
+                <div>
+                  <Label htmlFor="card-pin-current">Current PIN</Label>
+                  <Input
+                    id="card-pin-current"
+                    aria-label="Current PIN"
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={current}
+                    onChange={(e) => setCurrent(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                    autoComplete="current-password"
+                  />
+                  {currentError && <p className="text-xs text-destructive mt-1">{currentError}</p>}
+                </div>
+              )}
+              <div>
+                <Label htmlFor="card-pin-new">New PIN</Label>
+                <Input
+                  id="card-pin-new"
+                  aria-label="New PIN"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  autoComplete="new-password"
+                />
+              </div>
+              <div>
+                <Label htmlFor="card-pin-confirm">Confirm PIN</Label>
+                <Input
+                  id="card-pin-confirm"
+                  aria-label="Confirm PIN"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  autoComplete="new-password"
+                  aria-invalid={confirm.length === 4 && confirm !== pin}
+                />
+                {confirm.length === 4 && confirm !== pin && (
+                  <p className="text-xs text-destructive mt-1">PINs do not match.</p>
+                )}
+              </div>
             </div>
-          )}
-          <div>
-            <Label htmlFor="card-pin-new">New PIN</Label>
-            <Input
-              id="card-pin-new"
-              aria-label="New PIN"
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              autoComplete="new-password"
-            />
-          </div>
-          <div>
-            <Label htmlFor="card-pin-confirm">Confirm PIN</Label>
-            <Input
-              id="card-pin-confirm"
-              aria-label="Confirm PIN"
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              autoComplete="new-password"
-              aria-invalid={confirm.length === 4 && confirm !== pin}
-            />
-            {confirm.length === 4 && confirm !== pin && (
-              <p className="text-xs text-destructive mt-1">PINs do not match.</p>
-            )}
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={!isValid || isPending}>
-            {isPending ? 'Saving...' : 'Save PIN'}
-          </Button>
-        </DialogFooter>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit} disabled={!isValid || isPending || isCardLoading}>
+                {isPending ? 'Saving...' : 'Save PIN'}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )

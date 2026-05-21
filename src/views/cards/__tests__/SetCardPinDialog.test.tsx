@@ -12,7 +12,6 @@ jest.mock('@/lib/errors', () => ({
 }))
 
 const mockCardWithPin = createMockCard({ pin: '1234' })
-const mockNewCard = createMockCard({ pin: null })
 
 describe('SetCardPinDialog', () => {
   const onOpenChange = jest.fn()
@@ -21,6 +20,10 @@ describe('SetCardPinDialog', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.mocked(useCardsHook.useMyCard).mockReturnValue({
+      data: mockCardWithPin,
+      isLoading: false,
+    } as any)
     jest.mocked(useCardsHook.useVerifyCardPin).mockReturnValue({
       mutate: mockVerifyMutate,
       isPending: false,
@@ -32,24 +35,18 @@ describe('SetCardPinDialog', () => {
   })
 
   it('renders a current PIN field', () => {
-    renderWithProviders(
-      <SetCardPinDialog open onOpenChange={onOpenChange} card={mockCardWithPin} />
-    )
+    renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
     expect(screen.getByLabelText(/current pin/i)).toBeInTheDocument()
   })
 
   it('renders new PIN and confirm PIN fields', () => {
-    renderWithProviders(
-      <SetCardPinDialog open onOpenChange={onOpenChange} card={mockCardWithPin} />
-    )
+    renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
     expect(screen.getByLabelText(/new pin/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/confirm pin/i)).toBeInTheDocument()
   })
 
   it('Save PIN button is disabled when fields are empty', () => {
-    renderWithProviders(
-      <SetCardPinDialog open onOpenChange={onOpenChange} card={mockCardWithPin} />
-    )
+    renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
     expect(screen.getByRole('button', { name: /save pin/i })).toBeDisabled()
   })
 
@@ -69,9 +66,7 @@ describe('SetCardPinDialog', () => {
       }
     )
 
-    renderWithProviders(
-      <SetCardPinDialog open onOpenChange={onOpenChange} card={mockCardWithPin} />
-    )
+    renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
 
     await user.type(screen.getByLabelText(/current pin/i), '1234')
     await user.type(screen.getByLabelText(/^new pin/i), '5678')
@@ -101,9 +96,7 @@ describe('SetCardPinDialog', () => {
       onError()
     })
 
-    renderWithProviders(
-      <SetCardPinDialog open onOpenChange={onOpenChange} card={mockCardWithPin} />
-    )
+    renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
 
     await user.type(screen.getByLabelText(/current pin/i), '0000')
     await user.type(screen.getByLabelText(/^new pin/i), '5678')
@@ -122,9 +115,7 @@ describe('SetCardPinDialog', () => {
       onError()
     })
 
-    renderWithProviders(
-      <SetCardPinDialog open onOpenChange={onOpenChange} card={mockCardWithPin} />
-    )
+    renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
 
     await user.type(screen.getByLabelText(/current pin/i), '9999')
     await user.type(screen.getByLabelText(/^new pin/i), '1234')
@@ -137,9 +128,7 @@ describe('SetCardPinDialog', () => {
 
   it('shows PIN mismatch error when confirm does not match new PIN', async () => {
     const user = userEvent.setup()
-    renderWithProviders(
-      <SetCardPinDialog open onOpenChange={onOpenChange} card={mockCardWithPin} />
-    )
+    renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
 
     await user.type(screen.getByLabelText(/^new pin/i), '1234')
     await user.type(screen.getByLabelText(/confirm pin/i), '5678')
@@ -161,9 +150,7 @@ describe('SetCardPinDialog', () => {
       }
     )
 
-    renderWithProviders(
-      <SetCardPinDialog open onOpenChange={onOpenChange} card={mockCardWithPin} />
-    )
+    renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
 
     await user.type(screen.getByLabelText(/current pin/i), '1234')
     await user.type(screen.getByLabelText(/^new pin/i), '5678')
@@ -175,13 +162,20 @@ describe('SetCardPinDialog', () => {
   })
 
   describe('when the card has no PIN yet (card.pin is null/undefined)', () => {
+    beforeEach(() => {
+      jest.mocked(useCardsHook.useMyCard).mockReturnValue({
+        data: { ...mockCardWithPin, pin: null },
+        isLoading: false,
+      } as any)
+    })
+
     it('does NOT render a current PIN field', () => {
-      renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} card={mockNewCard} />)
+      renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
       expect(screen.queryByLabelText(/current pin/i)).not.toBeInTheDocument()
     })
 
     it('shows the "Set card PIN" title', () => {
-      renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} card={mockNewCard} />)
+      renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
       expect(screen.getByRole('heading', { name: /set card pin/i })).toBeInTheDocument()
     })
 
@@ -193,7 +187,7 @@ describe('SetCardPinDialog', () => {
         }
       )
 
-      renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} card={mockNewCard} />)
+      renderWithProviders(<SetCardPinDialog open onOpenChange={onOpenChange} cardId={1} />)
 
       await user.type(screen.getByLabelText(/^new pin/i), '5678')
       await user.type(screen.getByLabelText(/confirm pin/i), '5678')

@@ -26,7 +26,7 @@ export function CardListView() {
   const accounts = accountsData?.accounts ?? []
   const temporaryBlock = useTemporaryBlockCard()
   const [blockingCardId, setBlockingCardId] = useState<number | null>(null)
-  const [setPinCard, setSetPinCardModel] = useState<CardModel | null>(null)
+  const [setPinCardId, setSetPinCardId] = useState<number | null>(null)
   const [showPinCard, setShowPinCard] = useState<CardModel | null>(null)
   const [virtualOpen, setVirtualOpen] = useState(false)
   const holderName = client ? `${client.first_name} ${client.last_name}` : undefined
@@ -62,10 +62,7 @@ export function CardListView() {
       <CardGrid
         cards={cards ?? []}
         onBlock={(id) => setBlockingCardId(id)}
-        onSetPin={(id) => {
-          const c = (cards ?? []).find((x) => x.id === id)
-          if (c) setSetPinCardModel(c)
-        }}
+        onSetPin={(id) => setSetPinCardId(id)}
         onShowPin={(card) => setShowPinCard(card)}
         holderName={holderName}
       />
@@ -101,11 +98,11 @@ export function CardListView() {
         </DialogContent>
       </Dialog>
 
-      {setPinCard !== null && (
+      {setPinCardId !== null && (
         <SetCardPinDialog
           open
-          onOpenChange={(o) => !o && setSetPinCardModel(null)}
-          card={setPinCard}
+          onOpenChange={(o) => !o && setSetPinCardId(null)}
+          cardId={setPinCardId}
         />
       )}
 
