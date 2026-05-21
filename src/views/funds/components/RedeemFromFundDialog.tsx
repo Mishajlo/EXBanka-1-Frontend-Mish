@@ -111,12 +111,21 @@ export function RedeemFromFundDialog({
               onValueChange={(v) => v && setAccountId(Number(v))}
             >
               <SelectTrigger id="redeem-account" aria-label="Target account">
-                <SelectValue placeholder="Select account" />
+                <SelectValue placeholder="Select account">
+                  {accountId !== undefined
+                    ? (() => {
+                        const a = accounts.find((acc) => acc.id === accountId)
+                        return a
+                          ? `${a.account_number} — ${a.account_name} (${a.currency_code})`
+                          : null
+                      })()
+                    : null}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (
                   <SelectItem key={a.id} value={a.id.toString()}>
-                    {a.account_name} ({a.currency_code})
+                    {a.account_number} — {a.account_name} ({a.currency_code})
                   </SelectItem>
                 ))}
               </SelectContent>

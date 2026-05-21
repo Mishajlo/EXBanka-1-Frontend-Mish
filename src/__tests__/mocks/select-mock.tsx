@@ -37,6 +37,12 @@ export function SelectItem({ value, children }: { value: string; children?: Reac
   )
 }
 
-export function SelectValue() {
-  return null
+export function SelectValue({
+  children,
+  placeholder,
+}: {
+  children?: React.ReactNode
+  placeholder?: string
+}) {
+  return <span data-testid="select-value">{children != null ? children : placeholder}</span>
 }
