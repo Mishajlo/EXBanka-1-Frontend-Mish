@@ -53,7 +53,10 @@ export function InvestInFundDialog({
   const effectiveMin = currency === 'RSD' ? Math.max(fundMin, MIN_CONTRIBUTION_RSD) : null
   const aboveMinimum = effectiveMin === null || !decimalOk || Number(amount) >= effectiveMin
 
-  const isValid = accountId !== undefined && decimalOk && aboveMinimum
+  const withinBalance =
+    !decimalOk || account === undefined || Number(amount) <= account.available_balance
+
+  const isValid = accountId !== undefined && decimalOk && aboveMinimum && withinBalance
 
   const handleSubmit = () => {
     if (!isValid || !account) return
@@ -118,6 +121,11 @@ export function InvestInFundDialog({
             {decimalOk && !aboveMinimum && (
               <p className="text-xs text-destructive mt-1">
                 Minimum contribution is {effectiveMin} RSD.
+              </p>
+            )}
+            {decimalOk && aboveMinimum && !withinBalance && (
+              <p className="text-xs text-destructive mt-1">
+                Insufficient balance. Available: {account?.available_balance} {currency}.
               </p>
             )}
           </div>

@@ -79,4 +79,13 @@ describe('InvestInFundDialog', () => {
     expect(screen.getByText(/minimum contribution/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /^invest$/i })).toBeDisabled()
   })
+
+  it('shows error and disables Invest when amount exceeds available balance', () => {
+    const accounts = [createMockAccount({ id: 5, currency_code: 'RSD', available_balance: 500 })]
+    setup({ accounts })
+    fireEvent.click(screen.getByRole('option', { name: /tekući rsd/i }))
+    fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: '9999' } })
+    expect(screen.getByText(/insufficient.*balance/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^invest$/i })).toBeDisabled()
+  })
 })
