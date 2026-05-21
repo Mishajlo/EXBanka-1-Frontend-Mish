@@ -69,4 +69,14 @@ describe('InvestInFundDialog', () => {
     const trigger = screen.getByRole('combobox')
     expect(trigger).toHaveTextContent('111000100000000011 — Tekući RSD (RSD)')
   })
+
+  it('shows validation error when RSD amount is below 100', async () => {
+    const accounts = [createMockAccount({ currency_code: 'RSD', available_balance: 5000 })]
+    const fundWith0Min = { ...createMockFund(), minimum_contribution_rsd: '0' }
+    setup({ fund: fundWith0Min, accounts })
+    fireEvent.click(screen.getByRole('option', { name: /tekući rsd/i }))
+    fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: '50' } })
+    expect(screen.getByText(/minimum contribution/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^invest$/i })).toBeDisabled()
+  })
 })

@@ -31,6 +31,7 @@ interface Props {
 }
 
 const DECIMAL_RE = /^\d+(\.\d{1,2})?$/
+const MIN_CONTRIBUTION_RSD = 100
 
 export function InvestInFundDialog({
   open,
@@ -48,8 +49,9 @@ export function InvestInFundDialog({
   const currency = account?.currency_code ?? 'RSD'
 
   const decimalOk = DECIMAL_RE.test(amount)
-  const aboveMinimum =
-    !decimalOk || currency !== 'RSD' || Number(amount) >= Number(fund.minimum_contribution_rsd)
+  const fundMin = Number(fund.minimum_contribution_rsd)
+  const effectiveMin = currency === 'RSD' ? Math.max(fundMin, MIN_CONTRIBUTION_RSD) : fundMin
+  const aboveMinimum = !decimalOk || Number(amount) >= effectiveMin
 
   const isValid = accountId !== undefined && decimalOk && aboveMinimum
 
@@ -111,7 +113,7 @@ export function InvestInFundDialog({
             )}
             {decimalOk && !aboveMinimum && (
               <p className="text-xs text-destructive mt-1">
-                Minimum contribution is {fund.minimum_contribution_rsd} RSD.
+                Minimum contribution is {effectiveMin} RSD.
               </p>
             )}
           </div>
