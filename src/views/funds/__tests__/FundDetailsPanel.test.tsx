@@ -10,7 +10,7 @@ const baseFund = {
   id: 1,
   name: 'Test Fund',
   description: 'A test fund',
-  minimum_contribution_rsd: '1000',
+  minimum_contribution_rsd: undefined,
   manager_employee_id: 5,
   rsd_account_id: 10,
   fund_value_rsd: undefined,
