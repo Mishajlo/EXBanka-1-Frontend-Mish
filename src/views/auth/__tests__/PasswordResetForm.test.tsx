@@ -21,8 +21,8 @@ describe('PasswordResetForm', () => {
     await userEvent.type(screen.getByLabelText(/confirm password/i), 'weak')
     await userEvent.click(screen.getByRole('button', { name: /reset password/i }))
     await waitFor(() => {
-      // Should show a password validation error
-      expect(screen.getByText(/at least 8 characters/i)).toBeInTheDocument()
+      // Should show a password validation error (Zod form error)
+      expect(screen.getAllByText(/at least 8 characters/i).length).toBeGreaterThan(0)
     })
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
