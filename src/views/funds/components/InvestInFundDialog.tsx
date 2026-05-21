@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select'
 import type { Fund, InvestPayload } from '@/types/fund'
 import type { Account } from '@/types/account'
+import { formatCurrency } from '@/lib/utils/format'
 
 interface Props {
   open: boolean
@@ -113,7 +114,7 @@ export function InvestInFundDialog({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"
-              aria-invalid={amount.length > 0 && !decimalOk}
+              aria-invalid={amount.length > 0 && (!decimalOk || !withinBalance)}
             />
             {amount.length > 0 && !decimalOk && (
               <p className="text-xs text-destructive mt-1">Use a decimal value (e.g. 1000.00).</p>
@@ -125,7 +126,8 @@ export function InvestInFundDialog({
             )}
             {decimalOk && aboveMinimum && !withinBalance && (
               <p className="text-xs text-destructive mt-1">
-                Insufficient balance. Available: {account?.available_balance} {currency}.
+                Insufficient balance. Available:{' '}
+                {formatCurrency(account.available_balance, currency)}.
               </p>
             )}
           </div>
