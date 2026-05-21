@@ -1,5 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { useEmployee } from '@/hooks/useEmployee'
+import { useAppSelector } from '@/hooks/useAppSelector'
+import { selectUserType } from '@/store/selectors/authSelectors'
 import type { Fund } from '@/types/fund'
 
 interface FundDetailsPanelProps {
@@ -7,7 +9,11 @@ interface FundDetailsPanelProps {
 }
 
 export function FundDetailsPanel({ fund }: FundDetailsPanelProps) {
-  const { data: managerData } = useEmployee(fund.manager_employee_id, { suppressGlobalError: true })
+  const userType = useAppSelector(selectUserType)
+  const { data: managerData } = useEmployee(fund.manager_employee_id, {
+    suppressGlobalError: true,
+    enabled: userType === 'employee',
+  })
   const managerName = managerData
     ? `${managerData.first_name} ${managerData.last_name}`
     : `Employee #${fund.manager_employee_id}`

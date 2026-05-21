@@ -1,16 +1,29 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
+import { renderWithProviders } from '@/__tests__/utils/test-utils'
+import { createMockAuthState, createMockAuthUser } from '@/__tests__/fixtures/auth-fixtures'
 import { FundDetailsPanel } from '../components/FundDetailsPanel'
 import type { Fund } from '@/types/fund'
 
 const mockUseEmployee = jest.fn(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (_id: number, _options?: { suppressGlobalError?: boolean }) => ({ data: undefined })
+  (_id: number, _options?: { suppressGlobalError?: boolean; enabled?: boolean }) => ({
+    data: undefined,
+  })
 )
 
 jest.mock('@/hooks/useEmployee', () => ({
-   
-  useEmployee: (id: number, options?: any) => mockUseEmployee(id, options),
+  useEmployee: (id: number, options?: { suppressGlobalError?: boolean; enabled?: boolean }) =>
+    mockUseEmployee(id, options),
 }))
+
+const employeeAuth = createMockAuthState({
+  user: createMockAuthUser({ permissions: ['employees.read'] }),
+})
+
+const clientAuth = createMockAuthState({
+  user: createMockAuthUser(),
+  userType: 'client',
+})
 
 // Build a fund with null RSD fields (backend can omit these)
 const baseFund: Fund = {
@@ -33,15 +46,30 @@ describe('FundDetailsPanel', () => {
   })
 
   it('shows "— RSD" instead of "undefined RSD" when RSD fields are null', () => {
-    render(<FundDetailsPanel fund={baseFund} />)
+    renderWithProviders(<FundDetailsPanel fund={baseFund} />, {
+      preloadedState: { auth: employeeAuth },
+    })
     expect(screen.queryByText(/undefined rsd/i)).not.toBeInTheDocument()
     expect(screen.getAllByText(/— rsd/i)).toHaveLength(4)
   })
 
   it('calls useEmployee with suppressGlobalError: true to silence permission errors for non-admin roles', () => {
-    render(<FundDetailsPanel fund={baseFund} />)
-    expect(mockUseEmployee).toHaveBeenCalledWith(baseFund.manager_employee_id, {
-      suppressGlobalError: true,
+    renderWithProviders(<FundDetailsPanel fund={baseFund} />, {
+      preloadedState: { auth: employeeAuth },
     })
+    expect(mockUseEmployee).toHaveBeenCalledWith(
+      baseFund.manager_employee_id,
+      expect.objectContaining({ suppressGlobalError: true })
+    )
+  })
+
+  it('does not call useEmployee when userType is client', () => {
+    renderWithProviders(<FundDetailsPanel fund={baseFund} />, {
+      preloadedState: { auth: clientAuth },
+    })
+    expect(mockUseEmployee).toHaveBeenCalledWith(
+      baseFund.manager_employee_id,
+      expect.objectContaining({ enabled: false })
+    )
   })
 })
