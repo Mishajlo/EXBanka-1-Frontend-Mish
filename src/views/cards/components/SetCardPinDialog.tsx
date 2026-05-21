@@ -11,16 +11,18 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { useSetCardPin, useVerifyCardPin } from '@/hooks/useCards'
 import { notifySuccess, notifyError } from '@/lib/errors'
+import type { Card } from '@/types/card'
 
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
-  cardId: number
+  card: Card
 }
 
 const PIN_RE = /^\d{4}$/
 
-export function SetCardPinDialog({ open, onOpenChange, cardId }: Props) {
+export function SetCardPinDialog({ open, onOpenChange, card }: Props) {
+  const hasExistingPin = card.pin != null
   const [current, setCurrent] = useState('')
   const [pin, setPin] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -28,29 +30,35 @@ export function SetCardPinDialog({ open, onOpenChange, cardId }: Props) {
   const verifyMutation = useVerifyCardPin()
   const setPinMutation = useSetCardPin()
 
-  const isValid = PIN_RE.test(current) && PIN_RE.test(pin) && pin === confirm
+  const isValid = PIN_RE.test(pin) && pin === confirm && (!hasExistingPin || PIN_RE.test(current))
+
+  const finishSet = () => {
+    setPinMutation.mutate(
+      { cardId: card.id, pin },
+      {
+        onSuccess: () => {
+          notifySuccess(hasExistingPin ? 'PIN changed successfully.' : 'PIN set successfully.')
+          setCurrent('')
+          setPin('')
+          setConfirm('')
+          onOpenChange(false)
+        },
+        onError: (err) => notifyError(err),
+      }
+    )
+  }
 
   const handleSubmit = () => {
     if (!isValid) return
     setCurrentError('')
+    if (!hasExistingPin) {
+      finishSet()
+      return
+    }
     verifyMutation.mutate(
-      { cardId, pin: current },
+      { cardId: card.id, pin: current },
       {
-        onSuccess: () => {
-          setPinMutation.mutate(
-            { cardId, pin },
-            {
-              onSuccess: () => {
-                notifySuccess('PIN changed successfully.')
-                setCurrent('')
-                setPin('')
-                setConfirm('')
-                onOpenChange(false)
-              },
-              onError: (err) => notifyError(err),
-            }
-          )
-        },
+        onSuccess: () => finishSet(),
         onError: () => {
           setCurrentError('Incorrect current PIN.')
         },
@@ -64,23 +72,25 @@ export function SetCardPinDialog({ open, onOpenChange, cardId }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Change card PIN</DialogTitle>
+          <DialogTitle>{hasExistingPin ? 'Change card PIN' : 'Set card PIN'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-2">
-          <div>
-            <Label htmlFor="card-pin-current">Current PIN</Label>
-            <Input
-              id="card-pin-current"
-              aria-label="Current PIN"
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              value={current}
-              onChange={(e) => setCurrent(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              autoComplete="current-password"
-            />
-            {currentError && <p className="text-xs text-destructive mt-1">{currentError}</p>}
-          </div>
+          {hasExistingPin && (
+            <div>
+              <Label htmlFor="card-pin-current">Current PIN</Label>
+              <Input
+                id="card-pin-current"
+                aria-label="Current PIN"
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                value={current}
+                onChange={(e) => setCurrent(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                autoComplete="current-password"
+              />
+              {currentError && <p className="text-xs text-destructive mt-1">{currentError}</p>}
+            </div>
+          )}
           <div>
             <Label htmlFor="card-pin-new">New PIN</Label>
             <Input
