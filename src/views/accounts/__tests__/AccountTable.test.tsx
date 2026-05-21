@@ -89,4 +89,43 @@ describe('AccountTable', () => {
     expect(screen.getByText('Firma d.o.o.')).toBeInTheDocument()
     expect(screen.queryByText('Ana Anić')).not.toBeInTheDocument()
   })
+
+  it('disables Activity button for bank-owned accounts when canViewBankActivity is false', () => {
+    const account = createMockAccount({ account_type: 'bank' })
+    renderWithProviders(
+      <AccountTable
+        accounts={[account]}
+        onViewCards={jest.fn()}
+        onViewActivity={jest.fn()}
+        canViewBankActivity={false}
+      />
+    )
+    expect(screen.getByRole('button', { name: /activity/i })).toBeDisabled()
+  })
+
+  it('enables Activity button for bank-owned accounts when canViewBankActivity is true', () => {
+    const account = createMockAccount({ account_type: 'bank' })
+    renderWithProviders(
+      <AccountTable
+        accounts={[account]}
+        onViewCards={jest.fn()}
+        onViewActivity={jest.fn()}
+        canViewBankActivity={true}
+      />
+    )
+    expect(screen.getByRole('button', { name: /activity/i })).not.toBeDisabled()
+  })
+
+  it('enables Activity button for non-bank accounts regardless of canViewBankActivity', () => {
+    const account = createMockAccount({ account_type: 'standard' })
+    renderWithProviders(
+      <AccountTable
+        accounts={[account]}
+        onViewCards={jest.fn()}
+        onViewActivity={jest.fn()}
+        canViewBankActivity={false}
+      />
+    )
+    expect(screen.getByRole('button', { name: /activity/i })).not.toBeDisabled()
+  })
 })

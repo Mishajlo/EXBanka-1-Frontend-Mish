@@ -1,7 +1,10 @@
 /**
  * Routing guard test for /admin/bank-accounts/:id/activity
- * Bug #22: Supervisors and Agents must be able to view bank account activity.
- * The route must use requiredRole="Employee", not requiredPermission="bank-accounts.manage".
+ * Bug #22 follow-up: The backend endpoint GET /api/v3/bank-accounts/:id/activity
+ * requires the `bank-accounts.manage` permission (only EmployeeAdmin has it).
+ * The route guard must use requiredPermission="bank-accounts.manage" so that
+ * the frontend mirrors the backend's access rules instead of letting
+ * non-admin employees through to a 403 page.
  */
 import { screen } from '@testing-library/react'
 import { renderWithProviders } from '@/__tests__/utils/test-utils'
@@ -28,6 +31,23 @@ const supervisorAuthState = {
   },
 }
 
+const adminAuthState = {
+  auth: {
+    user: {
+      id: 1,
+      email: 'admin@test.com',
+      role: 'EmployeeAdmin',
+      permissions: [] as string[],
+      system_type: 'employee' as const,
+    },
+    userType: 'employee' as const,
+    accessToken: 'mock-token',
+    refreshToken: 'mock-refresh',
+    status: 'authenticated' as const,
+    error: null,
+  },
+}
+
 beforeEach(() => {
   jest.clearAllMocks()
   jest.mocked(useAccountsHook.useBankAccountActivity).mockReturnValue({
@@ -37,13 +57,13 @@ beforeEach(() => {
 })
 
 describe('BankAccountActivityRoute — access control', () => {
-  it('supervisor can access /admin/bank-accounts/:id/activity with requiredRole="Employee"', () => {
+  it('admin can access /admin/bank-accounts/:id/activity when guarded by requiredPermission="bank-accounts.manage"', () => {
     renderWithProviders(
-      <ProtectedRoute requiredRole="Employee">
+      <ProtectedRoute requiredPermission="bank-accounts.manage">
         <BankAccountActivityView />
       </ProtectedRoute>,
       {
-        preloadedState: supervisorAuthState,
+        preloadedState: adminAuthState,
         route: '/admin/bank-accounts/1/activity',
         routePath: '/admin/bank-accounts/:id/activity',
       }

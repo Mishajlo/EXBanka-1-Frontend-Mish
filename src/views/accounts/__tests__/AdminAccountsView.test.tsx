@@ -15,6 +15,23 @@ jest.mock('react-router-dom', () => ({
 jest.mock('@/hooks/useAccounts')
 jest.mock('@/hooks/useClients')
 
+const adminAuthState = {
+  auth: {
+    user: {
+      id: 1,
+      email: 'admin@test.com',
+      role: 'EmployeeAdmin',
+      permissions: [] as string[],
+      system_type: 'employee' as const,
+    },
+    userType: 'employee' as const,
+    accessToken: 'mock-token',
+    refreshToken: 'mock-refresh',
+    status: 'authenticated' as const,
+    error: null,
+  },
+}
+
 const clientAna = {
   id: 1,
   first_name: 'Ana',
@@ -172,7 +189,9 @@ describe('AdminAccountsView', () => {
       data: { accounts: [bankAccount], total: 1 },
       isLoading: false,
     } as any)
-    renderWithProviders(<AdminAccountsView />)
+    // Admin auth required because only EmployeeAdmin has `bank-accounts.manage`
+    // permission and thus an enabled Activity button on bank-owned accounts.
+    renderWithProviders(<AdminAccountsView />, { preloadedState: adminAuthState })
     await userEvent.click(screen.getByRole('button', { name: /activity/i }))
     expect(mockNavigate).toHaveBeenCalledWith('/admin/bank-accounts/99/activity')
   })
