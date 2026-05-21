@@ -2,8 +2,14 @@ import { render, screen } from '@testing-library/react'
 import { FundDetailsPanel } from '../components/FundDetailsPanel'
 import type { Fund } from '@/types/fund'
 
+const mockUseEmployee = jest.fn(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (_id: number, _options?: { suppressGlobalError?: boolean }) => ({ data: undefined })
+)
+
 jest.mock('@/hooks/useEmployee', () => ({
-  useEmployee: () => ({ data: undefined }),
+   
+  useEmployee: (id: number, options?: any) => mockUseEmployee(id, options),
 }))
 
 // Build a fund with null RSD fields (backend can omit these)
@@ -22,9 +28,20 @@ const baseFund: Fund = {
 }
 
 describe('FundDetailsPanel', () => {
+  beforeEach(() => {
+    mockUseEmployee.mockClear()
+  })
+
   it('shows "— RSD" instead of "undefined RSD" when RSD fields are null', () => {
     render(<FundDetailsPanel fund={baseFund} />)
     expect(screen.queryByText(/undefined rsd/i)).not.toBeInTheDocument()
     expect(screen.getAllByText(/— rsd/i)).toHaveLength(4)
+  })
+
+  it('calls useEmployee with suppressGlobalError: true to silence permission errors for non-admin roles', () => {
+    render(<FundDetailsPanel fund={baseFund} />)
+    expect(mockUseEmployee).toHaveBeenCalledWith(baseFund.manager_employee_id, {
+      suppressGlobalError: true,
+    })
   })
 })

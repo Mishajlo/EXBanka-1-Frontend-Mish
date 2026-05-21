@@ -7,7 +7,7 @@ interface FundDetailsPanelProps {
 }
 
 export function FundDetailsPanel({ fund }: FundDetailsPanelProps) {
-  const { data: managerData } = useEmployee(fund.manager_employee_id)
+  const { data: managerData } = useEmployee(fund.manager_employee_id, { suppressGlobalError: true })
   const managerName = managerData
     ? `${managerData.first_name} ${managerData.last_name}`
     : `Employee #${fund.manager_employee_id}`
