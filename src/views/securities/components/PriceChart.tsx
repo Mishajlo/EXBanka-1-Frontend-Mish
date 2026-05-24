@@ -28,6 +28,9 @@ const PERIODS: { label: string; value: PriceHistoryPeriod }[] = [
 
 const BULL_COLOR = '#16a34a'
 const BEAR_COLOR = '#dc2626'
+const NEUTRAL_COLOR = '#94a3b8'
+
+type Direction = 'bull' | 'bear' | 'flat'
 
 interface CandleDatum {
   date: string
@@ -37,8 +40,8 @@ interface CandleDatum {
   high: number
   low: number
   volume: number
-  range: [number, number] // [low, high] — drives Bar height
-  bullish: boolean
+  range: [number, number]
+  direction: Direction
 }
 
 function toCandle(entry: PriceHistoryEntry): CandleDatum {
@@ -47,6 +50,9 @@ function toCandle(entry: PriceHistoryEntry): CandleDatum {
   const high = Number(entry.high)
   const low = Number(entry.low)
   const open = close - change
+  let direction: Direction = 'flat'
+  if (close > open) direction = 'bull'
+  else if (close < open) direction = 'bear'
   return {
     date: entry.date,
     ts: new Date(entry.date).getTime(),
@@ -56,8 +62,14 @@ function toCandle(entry: PriceHistoryEntry): CandleDatum {
     low,
     volume: entry.volume,
     range: [low, high],
-    bullish: close >= open,
+    direction,
   }
+}
+
+function colorForDirection(d: Direction): string {
+  if (d === 'bull') return BULL_COLOR
+  if (d === 'bear') return BEAR_COLOR
+  return NEUTRAL_COLOR
 }
 
 function fmtTick(period: PriceHistoryPeriod): (value: number) => string {
@@ -83,7 +95,6 @@ function fmtTooltipDate(period: PriceHistoryPeriod, ts: number, fallback: string
   const d = new Date(ts)
   if (Number.isNaN(d.getTime())) return fallback
   if (period === 'day') {
-    // Same-day intraday candles: show full date + HH:mm
     return d.toLocaleString([], {
       month: 'short',
       day: '2-digit',
@@ -91,14 +102,20 @@ function fmtTooltipDate(period: PriceHistoryPeriod, ts: number, fallback: string
       minute: '2-digit',
     })
   }
-  // Daily-grain candles for week/month/year/5y/all — show date only, NO time.
   return d.toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
-// Candle draws both the wick (low→high vertical line) and the body
-// (open→close filled rect) at the same X position. Recharts gives us the
-// bar slot geometry for the [low, high] value range — y is the pixel for
-// HIGH, y+height is the pixel for LOW.
+// For the 1D view, return a numeric domain centered on Date.now() so the
+// latest candle sits in the middle and the chart appears to "slide" forward
+// as new data lands (the frontend polls /history every 60s).
+// Other periods are static historical views — use auto-fit on the data.
+function domainForPeriod(period: PriceHistoryPeriod): [number, number] | ['dataMin', 'dataMax'] {
+  if (period !== 'day') return ['dataMin', 'dataMax']
+  const halfWindowMs = 6 * 60 * 60 * 1000 // 6 hours each side → 12h total
+  const now = Date.now()
+  return [now - halfWindowMs, now + halfWindowMs]
+}
+
 function Candle(props: unknown) {
   const { x, y, width, height, payload } = props as {
     x: number
@@ -107,8 +124,8 @@ function Candle(props: unknown) {
     height: number
     payload: CandleDatum
   }
-  const { open, close, high, low, bullish } = payload
-  const color = bullish ? BULL_COLOR : BEAR_COLOR
+  const { open, close, high, low, direction } = payload
+  const color = colorForDirection(direction)
   const cx = x + width / 2
 
   const valueRange = high - low
@@ -127,10 +144,7 @@ function Candle(props: unknown) {
   const bodyHeight = Math.max(1, bodyBottom - bodyTop)
 
   return (
-    <g
-      data-testid="candle"
-      data-bullish={bullish ? 'true' : 'false'}
-    >
+    <g data-testid="candle" data-direction={direction}>
       <line
         data-testid="candle-wick"
         x1={cx}
@@ -186,6 +200,15 @@ export function PriceChart({ data, selectedPeriod, onPeriodChange, isLoading }: 
     .filter((c) => Number.isFinite(c.ts))
     .sort((a, b) => a.ts - b.ts)
 
+  const domain = domainForPeriod(selectedPeriod)
+  const visibleData =
+    selectedPeriod === 'day' && Array.isArray(domain)
+      ? chartData.filter(
+          (c) =>
+            c.ts >= (domain as [number, number])[0] && c.ts <= (domain as [number, number])[1],
+        )
+      : chartData
+
   return (
     <div>
       <div className="flex gap-1 mb-4">
@@ -204,19 +227,20 @@ export function PriceChart({ data, selectedPeriod, onPeriodChange, isLoading }: 
         <div className="h-64 flex items-center justify-center text-muted-foreground">
           Loading chart...
         </div>
-      ) : chartData.length < 1 ? (
+      ) : visibleData.length < 1 ? (
         <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">
           No historical data available for this period.
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={320}>
-          <ComposedChart data={chartData}>
+          <ComposedChart data={visibleData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="ts"
               type="number"
               scale="time"
-              domain={['dataMin', 'dataMax']}
+              domain={domain}
+              allowDataOverflow
               tickFormatter={fmtTick(selectedPeriod)}
               minTickGap={40}
             />
