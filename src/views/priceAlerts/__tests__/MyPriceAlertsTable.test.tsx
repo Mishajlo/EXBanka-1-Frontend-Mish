@@ -34,6 +34,18 @@ describe('MyPriceAlertsTable', () => {
     expect(screen.getByText(/paused/i)).toBeInTheDocument()
   })
 
+  it('formats recurring cooldown as hours (3600s → "Every 1h")', () => {
+    setup({
+      alerts: [createMockPriceAlert({ is_recurring: true, cooldown_seconds: 3600 })],
+    })
+    expect(screen.getByText(/every 1h/i)).toBeInTheDocument()
+  })
+
+  it('renders "Single-shot" for non-recurring alerts', () => {
+    setup({ alerts: [createMockPriceAlert({ is_recurring: false })] })
+    expect(screen.getByText(/single-shot/i)).toBeInTheDocument()
+  })
+
   it('calls onPause when the Pause button is clicked for an active alert', () => {
     const onPause = jest.fn()
     setup({ alerts: [createMockPriceAlert({ id: 9, active: true })], onPause })

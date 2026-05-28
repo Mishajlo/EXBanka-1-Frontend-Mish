@@ -34,9 +34,10 @@ interface Props {
 }
 
 const POSITIVE_DECIMAL_RE = /^\d+(\.\d+)?$/
-const DEFAULT_COOLDOWN_SECONDS = 3600
-const MIN_COOLDOWN_SECONDS = 60
-const MAX_COOLDOWN_SECONDS = 86400
+const SECONDS_PER_HOUR = 60 * 60
+const DEFAULT_COOLDOWN_HOURS = 1
+const MIN_COOLDOWN_HOURS = 1
+const MAX_COOLDOWN_HOURS = 24
 
 const CONDITION_LABELS: Record<PriceAlertCondition, string> = {
   gte: 'Price ≥ threshold',
@@ -49,12 +50,15 @@ export function CreatePriceAlertDialog({ open, onOpenChange, listing, onSubmit, 
   const [condition, setCondition] = useState<PriceAlertCondition>('gte')
   const [threshold, setThreshold] = useState('')
   const [isRecurring, setIsRecurring] = useState(false)
-  const [cooldown, setCooldown] = useState<number>(DEFAULT_COOLDOWN_SECONDS)
+  const [cooldownHours, setCooldownHours] = useState<number>(DEFAULT_COOLDOWN_HOURS)
   const [emailToo, setEmailToo] = useState(false)
 
   const thresholdOk = POSITIVE_DECIMAL_RE.test(threshold) && Number(threshold) > 0
   const cooldownOk =
-    !isRecurring || (cooldown >= MIN_COOLDOWN_SECONDS && cooldown <= MAX_COOLDOWN_SECONDS)
+    !isRecurring ||
+    (Number.isFinite(cooldownHours) &&
+      cooldownHours >= MIN_COOLDOWN_HOURS &&
+      cooldownHours <= MAX_COOLDOWN_HOURS)
   const isValid = thresholdOk && cooldownOk
 
   const handleSubmit = () => {
@@ -64,7 +68,7 @@ export function CreatePriceAlertDialog({ open, onOpenChange, listing, onSubmit, 
       condition,
       threshold,
       is_recurring: isRecurring,
-      ...(isRecurring ? { cooldown_seconds: cooldown } : {}),
+      ...(isRecurring ? { cooldown_seconds: cooldownHours * SECONDS_PER_HOUR } : {}),
       ...(emailToo ? { email_too: true } : {}),
     }
     onSubmit(payload)
@@ -126,19 +130,21 @@ export function CreatePriceAlertDialog({ open, onOpenChange, listing, onSubmit, 
 
           {isRecurring && (
             <div>
-              <Label htmlFor="alert-cooldown">Cooldown (seconds, 60–86400)</Label>
+              <Label htmlFor="alert-cooldown">
+                Cooldown (hours, {MIN_COOLDOWN_HOURS}–{MAX_COOLDOWN_HOURS})
+              </Label>
               <Input
                 id="alert-cooldown"
                 type="number"
-                min={MIN_COOLDOWN_SECONDS}
-                max={MAX_COOLDOWN_SECONDS}
-                value={cooldown}
-                onChange={(e) => setCooldown(Number(e.target.value))}
+                min={MIN_COOLDOWN_HOURS}
+                max={MAX_COOLDOWN_HOURS}
+                value={cooldownHours}
+                onChange={(e) => setCooldownHours(Number(e.target.value))}
                 aria-invalid={!cooldownOk}
               />
               {!cooldownOk && (
                 <p className="text-xs text-destructive mt-1">
-                  Cooldown must be between {MIN_COOLDOWN_SECONDS} and {MAX_COOLDOWN_SECONDS}.
+                  Cooldown must be between {MIN_COOLDOWN_HOURS} and {MAX_COOLDOWN_HOURS} hours.
                 </p>
               )}
             </div>

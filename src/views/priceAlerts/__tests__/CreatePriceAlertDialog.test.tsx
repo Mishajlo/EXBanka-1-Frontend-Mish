@@ -50,7 +50,7 @@ describe('CreatePriceAlertDialog', () => {
     })
   })
 
-  it('includes cooldown_seconds when is_recurring is enabled', () => {
+  it('converts cooldown hours to seconds (default 1 hour → 3600s) when recurring', () => {
     const onSubmit = jest.fn()
     setup({ onSubmit })
     fireEvent.change(screen.getByLabelText(/threshold/i), { target: { value: '50' } })
@@ -61,9 +61,19 @@ describe('CreatePriceAlertDialog', () => {
         listing_id: 42,
         threshold: '50',
         is_recurring: true,
-        cooldown_seconds: expect.any(Number),
+        cooldown_seconds: 3600,
       })
     )
+  })
+
+  it('converts a user-entered 6 hours into 21600 seconds', () => {
+    const onSubmit = jest.fn()
+    setup({ onSubmit })
+    fireEvent.change(screen.getByLabelText(/threshold/i), { target: { value: '50' } })
+    fireEvent.click(screen.getByLabelText(/recurring/i))
+    fireEvent.change(screen.getByLabelText(/cooldown.*hours/i), { target: { value: '6' } })
+    fireEvent.click(screen.getByRole('button', { name: /create alert/i }))
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ cooldown_seconds: 21600 }))
   })
 
   it('calls onOpenChange(false) when Cancel is clicked', () => {

@@ -30,6 +30,12 @@ function formatCondition(alert: PriceAlert): string {
   return `${CONDITION_SYMBOL[alert.condition]} ${alert.threshold}`
 }
 
+function formatCooldown(seconds: number): string {
+  const hours = seconds / (60 * 60)
+  // Show whole hours when the value divides cleanly; otherwise show one decimal.
+  return Number.isInteger(hours) ? `Every ${hours}h` : `Every ${hours.toFixed(1)}h`
+}
+
 export function MyPriceAlertsTable({
   alerts,
   onPause,
@@ -60,7 +66,7 @@ export function MyPriceAlertsTable({
               <TableCell className="font-mono">#{a.listing_id}</TableCell>
               <TableCell>{formatCondition(a)}</TableCell>
               <TableCell>
-                {a.is_recurring ? `Every ${a.cooldown_seconds}s` : 'Single-shot'}
+                {a.is_recurring ? formatCooldown(a.cooldown_seconds) : 'Single-shot'}
               </TableCell>
               <TableCell>
                 {a.active ? <Badge>Active</Badge> : <Badge variant="secondary">Paused</Badge>}
