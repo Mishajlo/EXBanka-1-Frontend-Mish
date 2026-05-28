@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { MyFundsList } from '@/views/funds/components/MyFundsList'
 import { RedeemFromFundDialog } from '@/views/funds/components/RedeemFromFundDialog'
+import { MyPriceAlertsTable } from '@/views/priceAlerts/components/MyPriceAlertsTable'
 import {
   usePortfolio,
   usePortfolioSummary,
@@ -18,6 +19,7 @@ import {
   useExerciseOption,
 } from '@/hooks/usePortfolio'
 import { useMyFundPositions, useRedeemFund } from '@/hooks/useFunds'
+import { useDeletePriceAlert, usePriceAlerts, useUpdatePriceAlert } from '@/hooks/usePriceAlerts'
 import { useClientAccounts } from '@/hooks/useAccounts'
 import { notifySuccess } from '@/lib/errors'
 import { getStocks } from '@/lib/api/securities'
@@ -31,11 +33,19 @@ const PAGE_SIZE = 10
 
 const PORTFOLIO_FILTER_FIELDS: FilterFieldDef[] = [{ key: 'search', label: 'Search', type: 'text' }]
 
+type PortfolioTab = 'holdings' | 'funds' | 'alerts'
+
+function parseTab(value: string | null): PortfolioTab {
+  if (value === 'funds') return 'funds'
+  if (value === 'alerts') return 'alerts'
+  return 'holdings'
+}
+
 export function PortfolioView() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialTab = searchParams.get('tab') === 'funds' ? 'funds' : 'holdings'
-  const [tab, setTab] = useState<'holdings' | 'funds'>(initialTab)
+  const initialTab = parseTab(searchParams.get('tab'))
+  const [tab, setTab] = useState<PortfolioTab>(initialTab)
   const [filterValues, setFilterValues] = useState<FilterValues>({})
   const [page, setPage] = useState(1)
   const [makePublicHolding, setMakePublicHolding] = useState<Holding | null>(null)
@@ -58,12 +68,21 @@ export function PortfolioView() {
   const exerciseMutation = useExerciseOption()
 
   const handleTabChange = (next: string) => {
-    const value = next === 'funds' ? 'funds' : 'holdings'
+    const value = parseTab(next)
     setTab(value)
-    if (value === 'funds') searchParams.set('tab', 'funds')
-    else searchParams.delete('tab')
+    if (value === 'holdings') searchParams.delete('tab')
+    else searchParams.set('tab', value)
     setSearchParams(searchParams, { replace: true })
   }
+
+  const { data: priceAlerts } = usePriceAlerts()
+  const updateAlertMutation = useUpdatePriceAlert()
+  const deleteAlertMutation = useDeletePriceAlert()
+  const handlePauseAlert = (id: number) =>
+    updateAlertMutation.mutate({ id, payload: { active: false } })
+  const handleResumeAlert = (id: number) =>
+    updateAlertMutation.mutate({ id, payload: { active: true } })
+  const handleDeleteAlert = (id: number) => deleteAlertMutation.mutate(id)
 
   const handleFilterChange = (newFilters: FilterValues) => {
     setFilterValues(newFilters)
@@ -152,6 +171,7 @@ export function PortfolioView() {
         <TabsList>
           <TabsTrigger value="holdings">My Holdings</TabsTrigger>
           <TabsTrigger value="funds">My Funds</TabsTrigger>
+          <TabsTrigger value="alerts">My Price Alerts</TabsTrigger>
         </TabsList>
         <TabsContent value="holdings" className="mt-4">
           <FilterBar
@@ -182,6 +202,21 @@ export function PortfolioView() {
             positions={fundPositions}
             onInvest={(p) => navigate(`/funds/${p.fund_id}`)}
             onRedeem={(p) => setRedeemPosition(p)}
+          />
+        </TabsContent>
+        <TabsContent value="alerts" className="mt-4">
+          <MyPriceAlertsTable
+            alerts={priceAlerts ?? []}
+            onPause={handlePauseAlert}
+            onResume={handleResumeAlert}
+            onDelete={handleDeleteAlert}
+            busyId={
+              updateAlertMutation.isPending
+                ? updateAlertMutation.variables?.id
+                : deleteAlertMutation.isPending
+                  ? deleteAlertMutation.variables
+                  : undefined
+            }
           />
         </TabsContent>
       </Tabs>

@@ -1,3 +1,4 @@
+import { Bell } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -14,9 +15,10 @@ interface ForexTableProps {
   pairs: ForexPair[]
   onRowClick: (id: number) => void
   onBuy: (pair: ForexPair) => void
+  onCreateAlert?: (pair: ForexPair) => void
 }
 
-export function ForexTable({ pairs, onRowClick, onBuy }: ForexTableProps) {
+export function ForexTable({ pairs, onRowClick, onBuy, onCreateAlert }: ForexTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -49,15 +51,30 @@ export function ForexTable({ pairs, onRowClick, onBuy }: ForexTableProps) {
             <TableCell>{pair.liquidity}</TableCell>
             <TableCell>{pair.initial_margin_cost}</TableCell>
             <TableCell>
-              <Button
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onBuy(pair)
-                }}
-              >
-                Buy
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onBuy(pair)
+                  }}
+                >
+                  Buy
+                </Button>
+                {onCreateAlert && (
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    aria-label={`Create price alert for ${pair.ticker}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onCreateAlert(pair)
+                    }}
+                  >
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}

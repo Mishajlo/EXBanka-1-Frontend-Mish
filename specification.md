@@ -1,6 +1,6 @@
 # EXBanka Frontend — Project Specification
 
-_Last updated: 2026-05-28 (added stricter form validations — phone format `/^\+?[0-9]+$/`, date of birth not in future and ≥ 16 years old, inline display of server-side duplicate-email errors via `isDuplicateEmailError` helper; added FundPortfolioView at `/funds/:id/portfolio` — fund portfolio-style page with summary cards, performance chart and an enriched holdings table that calls `useStock(stock_id)` per row to fill in ticker/name/price/market value)_
+_Last updated: 2026-05-28 (added stricter form validations — phone format `/^\+?[0-9]+$/`, date of birth not in future and ≥ 16 years old, inline display of server-side duplicate-email errors via `isDuplicateEmailError` helper; added FundPortfolioView at `/funds/:id/portfolio` — fund portfolio-style page with summary cards, performance chart and an enriched holdings table that calls `useStock(stock_id)` per row to fill in ticker/name/price/market value; added Price Alerts — bell-icon button on every Stocks/Futures/Forex table row opens `CreatePriceAlertDialog` (POST `/me/price-alerts`), and a new "My Price Alerts" tab on `/portfolio` lists alerts with Pause/Resume/Delete actions via PUT/DELETE `/me/price-alerts/:id`)_
 
 ---
 
