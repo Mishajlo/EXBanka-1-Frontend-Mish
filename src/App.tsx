@@ -63,6 +63,7 @@ import { OtcContractDetailView, OtcContractsView } from '@/views/otcContracts'
 import { OtcOptionsView } from '@/views/otcOptions'
 import { NotificationTemplatesView } from '@/views/notificationTemplates'
 import { SettingsView } from '@/views/settings'
+import { AuditLogsView } from '@/views/audit'
 
 export default function App() {
   return (
@@ -385,6 +386,14 @@ export default function App() {
           element={
             <ProtectedRoute requireAdmin>
               <TaxView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/audit"
+          element={
+            <ProtectedRoute requireAdmin>
+              <AuditLogsView />
             </ProtectedRoute>
           }
         />
