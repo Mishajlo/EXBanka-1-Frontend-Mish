@@ -1,3 +1,4 @@
+import { Bell } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -14,9 +15,10 @@ interface StockTableProps {
   stocks: Stock[]
   onRowClick: (id: number) => void
   onBuy: (stock: Stock) => void
+  onCreateAlert?: (stock: Stock) => void
 }
 
-export function StockTable({ stocks, onRowClick, onBuy }: StockTableProps) {
+export function StockTable({ stocks, onRowClick, onBuy, onCreateAlert }: StockTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -49,15 +51,30 @@ export function StockTable({ stocks, onRowClick, onBuy }: StockTableProps) {
             <TableCell>{stock.exchange_acronym}</TableCell>
             <TableCell>{stock.initial_margin_cost}</TableCell>
             <TableCell>
-              <Button
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onBuy(stock)
-                }}
-              >
-                Buy
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onBuy(stock)
+                  }}
+                >
+                  Buy
+                </Button>
+                {onCreateAlert && (
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    aria-label={`Create price alert for ${stock.ticker}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onCreateAlert(stock)
+                    }}
+                  >
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}

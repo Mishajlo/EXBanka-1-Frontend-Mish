@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { MyFundsList } from '@/views/funds/components/MyFundsList'
 import { RedeemFromFundDialog } from '@/views/funds/components/RedeemFromFundDialog'
+import { MyPriceAlertsTable } from '@/views/priceAlerts/components/MyPriceAlertsTable'
+import { PriceAlertDialog } from '@/views/priceAlerts/components/PriceAlertDialog'
 import {
   usePortfolio,
   usePortfolioSummary,
@@ -18,6 +20,8 @@ import {
   useExerciseOption,
 } from '@/hooks/usePortfolio'
 import { useMyFundPositions, useRedeemFund } from '@/hooks/useFunds'
+import { useDeletePriceAlert, usePriceAlerts, useUpdatePriceAlert } from '@/hooks/usePriceAlerts'
+import { useListingMap } from '@/hooks/useSecurities'
 import { useClientAccounts } from '@/hooks/useAccounts'
 import { notifySuccess } from '@/lib/errors'
 import { getStocks } from '@/lib/api/securities'
@@ -25,17 +29,26 @@ import type { Holding, PortfolioFilters } from '@/types/portfolio'
 import type { ClientFundPosition, RedeemPayload } from '@/types/fund'
 import type { Account } from '@/types/account'
 import type { FilterFieldDef, FilterValues } from '@/types/filters'
+import type { CreatePriceAlertPayload, PriceAlert } from '@/types/priceAlert'
 import { EmptyState, LoadingState, ViewShell } from '@/views/shared'
 
 const PAGE_SIZE = 10
 
 const PORTFOLIO_FILTER_FIELDS: FilterFieldDef[] = [{ key: 'search', label: 'Search', type: 'text' }]
 
+type PortfolioTab = 'holdings' | 'funds' | 'alerts'
+
+function parseTab(value: string | null): PortfolioTab {
+  if (value === 'funds') return 'funds'
+  if (value === 'alerts') return 'alerts'
+  return 'holdings'
+}
+
 export function PortfolioView() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialTab = searchParams.get('tab') === 'funds' ? 'funds' : 'holdings'
-  const [tab, setTab] = useState<'holdings' | 'funds'>(initialTab)
+  const initialTab = parseTab(searchParams.get('tab'))
+  const [tab, setTab] = useState<PortfolioTab>(initialTab)
   const [filterValues, setFilterValues] = useState<FilterValues>({})
   const [page, setPage] = useState(1)
   const [makePublicHolding, setMakePublicHolding] = useState<Holding | null>(null)
@@ -58,11 +71,36 @@ export function PortfolioView() {
   const exerciseMutation = useExerciseOption()
 
   const handleTabChange = (next: string) => {
-    const value = next === 'funds' ? 'funds' : 'holdings'
+    const value = parseTab(next)
     setTab(value)
-    if (value === 'funds') searchParams.set('tab', 'funds')
-    else searchParams.delete('tab')
+    if (value === 'holdings') searchParams.delete('tab')
+    else searchParams.set('tab', value)
     setSearchParams(searchParams, { replace: true })
+  }
+
+  const { data: priceAlerts } = usePriceAlerts()
+  const updateAlertMutation = useUpdatePriceAlert()
+  const deleteAlertMutation = useDeletePriceAlert()
+  const listingMap = useListingMap()
+  const [editingAlert, setEditingAlert] = useState<PriceAlert | null>(null)
+  const handlePauseAlert = (id: number) =>
+    updateAlertMutation.mutate({ id, payload: { active: false } })
+  const handleResumeAlert = (id: number) =>
+    updateAlertMutation.mutate({ id, payload: { active: true } })
+  const handleDeleteAlert = (id: number) => deleteAlertMutation.mutate(id)
+  const handleEditAlertSubmit = (payload: CreatePriceAlertPayload) => {
+    if (!editingAlert) return
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { listing_id, ...updatePayload } = payload
+    updateAlertMutation.mutate(
+      { id: editingAlert.id, payload: updatePayload },
+      {
+        onSuccess: () => {
+          notifySuccess('Price alert updated.')
+          setEditingAlert(null)
+        },
+      }
+    )
   }
 
   const handleFilterChange = (newFilters: FilterValues) => {
@@ -152,6 +190,7 @@ export function PortfolioView() {
         <TabsList>
           <TabsTrigger value="holdings">My Holdings</TabsTrigger>
           <TabsTrigger value="funds">My Funds</TabsTrigger>
+          <TabsTrigger value="alerts">My Price Alerts</TabsTrigger>
         </TabsList>
         <TabsContent value="holdings" className="mt-4">
           <FilterBar
@@ -184,6 +223,22 @@ export function PortfolioView() {
             onRedeem={(p) => setRedeemPosition(p)}
           />
         </TabsContent>
+        <TabsContent value="alerts" className="mt-4">
+          <MyPriceAlertsTable
+            alerts={priceAlerts ?? []}
+            onEdit={setEditingAlert}
+            onPause={handlePauseAlert}
+            onResume={handleResumeAlert}
+            onDelete={handleDeleteAlert}
+            busyId={
+              updateAlertMutation.isPending
+                ? updateAlertMutation.variables?.id
+                : deleteAlertMutation.isPending
+                  ? deleteAlertMutation.variables
+                  : undefined
+            }
+          />
+        </TabsContent>
       </Tabs>
 
       {makePublicHolding && (
@@ -203,6 +258,23 @@ export function PortfolioView() {
           position={redeemPosition}
           accounts={accounts}
           onClose={() => setRedeemPosition(null)}
+        />
+      )}
+
+      {editingAlert && (
+        <PriceAlertDialog
+          key={editingAlert.id}
+          open
+          onOpenChange={(o) => !o && setEditingAlert(null)}
+          listing={{
+            listing_id: editingAlert.listing_id,
+            ticker:
+              listingMap.get(editingAlert.listing_id)?.ticker ?? `#${editingAlert.listing_id}`,
+            name: listingMap.get(editingAlert.listing_id)?.name ?? '',
+          }}
+          initialAlert={editingAlert}
+          onSubmit={handleEditAlertSubmit}
+          loading={updateAlertMutation.isPending}
         />
       )}
     </ViewShell>
