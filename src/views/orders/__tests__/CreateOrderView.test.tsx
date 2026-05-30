@@ -73,12 +73,12 @@ describe('CreateOrderView — scheduling a recurring buy', () => {
     expect(screen.getByLabelText(/schedule order/i)).toBeInTheDocument()
   })
 
-  it('does not show the Schedule order checkbox for an employee', () => {
+  it('shows the Schedule order checkbox for an employee market buy', () => {
     mockSearchParams = new URLSearchParams({ listingId: '7', direction: 'buy' })
     renderWithProviders(<CreateOrderView />, {
       preloadedState: { auth: { userType: 'employee' } as any },
     })
-    expect(screen.queryByLabelText(/schedule order/i)).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/schedule order/i)).toBeInTheDocument()
   })
 
   it('places the order then creates the recurring order on "Place order and schedule"', () => {

@@ -100,10 +100,12 @@ export function CreateOrderView() {
 
   const effectiveListingId = isSell ? selectedListingId : listingId
 
-  // Scheduling a recurring buy is only valid for the recurring API's surface:
-  // a plain market buy placed by a client for themselves. The form additionally
-  // gates the checkbox on order_type === 'market'.
-  const schedulingEnabled = direction === 'buy' && !isOption && !isForex && !isEmployee
+  // Scheduling a recurring buy maps to the recurring API's surface: a plain
+  // market buy. Available to clients and employees in any charge mode — note
+  // /me/recurring-orders is caller-scoped, so an employee's template is created
+  // under the employee principal (with the chosen account_id), not the client
+  // or fund being charged. The form additionally gates on order_type === 'market'.
+  const schedulingEnabled = direction === 'buy' && !isOption && !isForex
 
   const scheduleRecurring = (
     payload: CreateOrderPayload,
